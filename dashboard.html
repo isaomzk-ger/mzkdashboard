@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>作業ダッシュボード</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222536;
+    --border: #2e3347;
+    --text: #e2e4ed;
+    --muted: #7880a0;
+    --accent: #6c8eff;
+    --accent2: #a78bfa;
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --orange: #fb923c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #1a1d27 0%, #222536 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .logo { font-size: 20px; font-weight: 700; color: var(--accent); }
+  .date-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .date-badge span { color: var(--text); font-weight: 600; }
+  .header-right { display: flex; gap: 8px; }
+  .btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 12px;
+    transition: all .15s;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { opacity: .85; color: #fff; }
+
+  /* ── Layout ── */
+  .main { display: grid; grid-template-columns: 280px 1fr 280px; gap: 16px; padding: 20px 24px; max-width: 1400px; margin: 0 auto; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .card-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--surface2);
+    color: var(--muted);
+  }
+
+  /* ── Stats Row ── */
+  .stats-row { display: flex; gap: 12px; margin-bottom: 16px; }
+  .stat-card {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .stat-label { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+  .stat-value { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; }
+  .stat-sub { font-size: 11px; color: var(--muted); }
+  .stat-card.green .stat-value { color: var(--green); }
+  .stat-card.yellow .stat-value { color: var(--yellow); }
+  .stat-card.purple .stat-value { color: var(--accent2); }
+  .stat-card.blue .stat-value { color: var(--accent); }
+
+  /* ── Task Matrix ── */
+  .matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .matrix-cell {
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid;
+  }
+  .matrix-cell.a { background: rgba(248,113,113,.08); border-color: rgba(248,113,113,.25); }
+  .matrix-cell.b { background: rgba(251,191,36,.08); border-color: rgba(251,191,36,.25); }
+  .matrix-cell.c { background: rgba(108,142,255,.08); border-color: rgba(108,142,255,.25); }
+  .matrix-cell.d { background: rgba(120,128,160,.08); border-color: rgba(120,128,160,.2); }
+  .matrix-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .matrix-cell.a .matrix-label { color: var(--red); }
+  .matrix-cell.b .matrix-label { color: var(--yellow); }
+  .matrix-cell.c .matrix-label { color: var(--accent); }
+  .matrix-cell.d .matrix-label { color: var(--muted); }
+  .task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 4px 0;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .task-item:hover { opacity: .8; }
+  .task-item input[type="checkbox"] {
+    accent-color: var(--accent);
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+  }
+  .task-item label {
+    cursor: pointer;
+    color: var(--text);
+    transition: color .15s;
+  }
+  .task-item.done label { text-decoration: line-through; color: var(--muted); }
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 6px;
+    margin-left: 4px;
+  }
+  .tag-katsuya { background: rgba(167,139,250,.15); color: var(--accent2); }
+  .tag-risefan { background: rgba(52,211,153,.15); color: var(--green); }
+  .tag-and { background: rgba(108,142,255,.15); color: var(--accent); }
+
+  /* ── Timeline ── */
+  .timeline { position: relative; }
+  .tl-item {
+    display: flex;
+    gap: 10px;
+    padding: 6px 0;
+    position: relative;
+  }
+  .tl-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 36px;
+    top: 28px;
+    bottom: -4px;
+    width: 1px;
+    background: var(--border);
+  }
+  .tl-time {
+    font-size: 11px;
+    color: var(--muted);
+    width: 36px;
+    flex-shrink: 0;
+    text-align: right;
+    padding-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .tl-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 6px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+  }
+  .tl-item.fixed .tl-dot { background: var(--accent); border-color: var(--accent); }
+  .tl-item.current .tl-dot { background: var(--green); border-color: var(--green); box-shadow: 0 0 8px var(--green); }
+  .tl-item.done-tl .tl-dot { background: var(--muted); }
+  .tl-item.done-tl .tl-content { opacity: .4; }
+  .tl-content { font-size: 12px; padding-top: 3px; }
+  .tl-label { color: var(--text); font-weight: 500; }
+  .tl-item.fixed .tl-label { color: var(--accent); }
+  .tl-status {
+    display: inline-block;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 6px;
+    margin-left: 6px;
+  }
+  .status-fixed { background: rgba(108,142,255,.15); color: var(--accent); }
+  .status-done { background: rgba(52,211,153,.15); color: var(--green); }
+
+  /* ── Projects ── */
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 8px;
+    transition: border-color .15s;
+  }
+  .project-card:hover { border-color: var(--accent); }
+  .project-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .project-name { font-size: 13px; font-weight: 700; color: var(--text); }
+  .project-status {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .status-active { background: rgba(52,211,153,.15); color: var(--green); }
+  .status-support { background: rgba(251,191,36,.15); color: var(--yellow); }
+  .status-warning { background: rgba(248,113,113,.15); color: var(--red); }
+  .project-meta { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .project-reward { font-size: 12px; color: var(--accent2); font-weight: 600; }
+  .progress-bar {
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 4px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .progress-fill { height: 100%; border-radius: 4px; transition: width .3s; }
+  .fill-green { background: var(--green); }
+  .fill-yellow { background: var(--yellow); }
+  .fill-blue { background: var(--accent); }
+
+  /* ── Goals ── */
+  .goal-item { padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .goal-item:last-child { border-bottom: none; }
+  .goal-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .goal-name { font-size: 12px; color: var(--text); }
+  .goal-nums { font-size: 11px; color: var(--muted); }
+  .goal-nums span { color: var(--text); font-weight: 700; }
+
+  /* ── Links ── */
+  .link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .notion-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 500;
+    transition: all .15s;
+  }
+  .notion-link:hover { border-color: var(--accent); color: var(--accent); }
+  .notion-icon { font-size: 14px; flex-shrink: 0; }
+  .link-list { display: flex; flex-direction: column; gap: 6px; }
+  .link-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 12px;
+    transition: all .15s;
+  }
+  .link-item:hover { border-color: var(--accent); color: var(--accent); }
+  .link-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── Progress ring ── */
+  .ring-wrap { display: flex; align-items: center; gap: 16px; padding: 8px 0; }
+  .ring-svg { width: 64px; height: 64px; flex-shrink: 0; }
+  .ring-track { fill: none; stroke: var(--surface2); stroke-width: 6; }
+  .ring-fill { fill: none; stroke-width: 6; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset .4s; }
+  .ring-text { fill: var(--text); font-size: 11px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; }
+  .ring-info { flex: 1; }
+  .ring-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .ring-sub { font-size: 11px; color: var(--muted); }
+
+  /* ── Responsive ── */
+  @media (max-width: 1100px) {
+    .main { grid-template-columns: 1fr 1fr; }
+    .col-right { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  }
+  @media (max-width: 700px) {
+    .main { grid-template-columns: 1fr; }
+    .col-right { grid-template-columns: 1fr; }
+    .stats-row { flex-wrap: wrap; }
+  }
+
+  /* ── Tooltip ── */
+  .tooltip { position: relative; }
+  .tooltip::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #000;
+    color: #fff;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s;
+  }
+  .tooltip:hover::after { opacity: 1; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo">📋 Director HQ</div>
+    <div class="date-badge">
+      <span id="today-date">2026-05-11（月）</span>
+      <span id="today-time" style="margin-left:8px;"></span>
+    </div>
+  </div>
+  <div class="header-right">
+    <a href="https://www.notion.so/33c4b5f36fc680d497d7d4486fab4d20" target="_blank" class="btn">and° Notion</a>
+    <a href="https://www.notion.so/e9f02576532f4e40a018b39dbe70cf2b" target="_blank" class="btn btn-primary">全案件タスク</a>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- ── Left Column ── -->
+  <div class="col-left">
+
+    <!-- Stats -->
+    <div class="stats-row" style="flex-direction:column;gap:8px;">
+      <div style="display:flex;gap:8px;">
+        <div class="stat-card red">
+          <div class="stat-label">緊急タスク</div>
+          <div class="stat-value" id="count-a">1</div>
+          <div class="stat-sub">今日中に完了</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-label">計画タスク</div>
+          <div class="stat-value" id="count-b">1</div>
+          <div class="stat-sub">重要・非緊急</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div class="stat-card blue">
+          <div class="stat-label">短時間タスク</div>
+          <div class="stat-value" id="count-c">2</div>
+          <div class="stat-sub">サクッと対応</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-label">後回し</div>
+          <div class="stat-value" id="count-d">1</div>
+          <div class="stat-sub">余裕があれば</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Task Matrix -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">タスク優先マトリクス</div>
+        <div class="card-badge" id="task-progress">0/5 完了</div>
+      </div>
+      <div class="matrix">
+        <!-- A: 緊急×重要 -->
+        <div class="matrix-cell a">
+          <div class="matrix-label">🔴 A — 緊急×重要</div>
+          <div class="task-item" id="task-0">
+            <input type="checkbox" id="cb-0" onchange="toggleTask(0)">
+            <label for="cb-0">里澤さんMTG準備</label>
+          </div>
+        </div>
+        <!-- B: 重要×非緊急 -->
+        <div class="matrix-cell b">
+          <div class="matrix-label">🟡 B — 重要×非緊急</div>
+          <div class="task-item" id="task-1">
+            <input type="checkbox" id="cb-1" onchange="toggleTask(1)">
+            <label for="cb-1">Claude Code台本自動化<span class="tag tag-katsuya">かつや</span></label>
+          </div>
+        </div>
+        <!-- C: 緊急×非重要 -->
+        <div class="matrix-cell c">
+          <div class="matrix-label">🔵 C — 緊急×非重要</div>
+          <div class="task-item" id="task-2">
+            <input type="checkbox" id="cb-2" onchange="toggleTask(2)">
+            <label for="cb-2">ダイロク登録促す音声<span class="tag tag-katsuya">かつや</span></label>
+          </div>
+          <div class="task-item" id="task-3">
+            <input type="checkbox" id="cb-3" onchange="toggleTask(3)">
+            <label for="cb-3">納品スプレッド<span class="tag tag-katsuya">かつや</span></label>
+          </div>
+          <div class="task-item" id="task-4">
+            <input type="checkbox" id="cb-4" onchange="toggleTask(4)">
+            <label for="cb-4">ナイトウ16サムネ<span class="tag tag-katsuya">かつや</span></label>
+          </div>
+        </div>
+        <!-- D: 後回し -->
+        <div class="matrix-cell d">
+          <div class="matrix-label">⚪ D — 後回し</div>
+          <div class="task-item" id="task-5">
+            <input type="checkbox" id="cb-5" onchange="toggleTask(5)">
+            <label for="cb-5">台本チェックGPTs<span class="tag tag-risefan">ライズ</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual Links -->
+    <div class="card">
+      <div class="card-header"><div class="card-title">マニュアル</div></div>
+      <div class="link-list">
+        <a href="https://www.notion.so/33c4b5f36fc680f0b1c3e202451135f2" target="_blank" class="link-item">
+          <span class="link-dot" style="background:var(--green)"></span>ディレクターマニュアル
+        </a>
+        <a href="https://www.notion.so/33c4b5f36fc680a28788dced8ecac111" target="_blank" class="link-item">
+          <span class="link-dot" style="background:var(--green)"></span>編集マニュアル
+        </a>
+        <a href="https://www.notion.so/34c4b5f36fc68022aa60ed7826bfaa52" target="_blank" class="link-item">
+          <span class="link-dot" style="background:var(--green)"></span>収益停止対策マニュアル
+        </a>
+        <a href="https://www.notion.so/3564b5f36fc680a5ab26e0c796ae7569" target="_blank" class="link-item">
+          <span class="link-dot" style="background:var(--yellow)"></span>ナレーター導入マニュアル <span style="font-size:10px;color:var(--yellow);margin-left:auto;">進行中</span>
+        </a>
+        <a href="https://www.notion.so/33c4b5f36fc680009951ece4cde6b03c" target="_blank" class="link-item">
+          <span class="link-dot" style="background:var(--green)"></span>アニメストーリマニュアル
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Center Column ── -->
+  <div class="col-center">
+
+    <!-- Today's Timeline -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">今日の工程表</div>
+        <div class="card-badge">2026-05-11</div>
+      </div>
+      <div class="timeline" id="timeline">
+        <!-- generated by JS -->
+      </div>
+    </div>
+
+    <!-- Goal Progress -->
+    <div class="card">
+      <div class="card-header"><div class="card-title">月次目標・進捗</div><div class="card-badge">2026年5月</div></div>
+
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 64 64">
+          <circle class="ring-track" cx="32" cy="32" r="28"/>
+          <circle class="ring-fill" cx="32" cy="32" r="28" stroke="var(--green)"
+            stroke-dasharray="175.9" stroke-dashoffset="52.8" id="ring-manual"/>
+          <text class="ring-text" x="32" y="32" id="ring-manual-pct">70%</text>
+        </svg>
+        <div class="ring-info">
+          <div class="ring-title">マニュアル整備</div>
+          <div class="ring-sub">7 / 10 本 完了</div>
+          <div class="ring-sub" style="color:var(--muted);margin-top:2px;">残り：ナレーター導入など</div>
+        </div>
+      </div>
+
+      <div class="ring-wrap" style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px;">
+        <svg class="ring-svg" viewBox="0 0 64 64">
+          <circle class="ring-track" cx="32" cy="32" r="28"/>
+          <circle class="ring-fill" cx="32" cy="32" r="28" stroke="var(--accent)"
+            stroke-dasharray="175.9" stroke-dashoffset="105.5" id="ring-onboard"/>
+          <text class="ring-text" x="32" y="32" id="ring-onboard-pct">40%</text>
+        </svg>
+        <div class="ring-info">
+          <div class="ring-title">and° オンボーディング</div>
+          <div class="ring-sub">新規D 自走率 目標 80%</div>
+          <div class="ring-sub" style="color:var(--muted);margin-top:2px;">品質管理部専属移行準備中</div>
+        </div>
+      </div>
+
+      <div class="ring-wrap" style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px;">
+        <svg class="ring-svg" viewBox="0 0 64 64">
+          <circle class="ring-track" cx="32" cy="32" r="28"/>
+          <circle class="ring-fill" cx="32" cy="32" r="28" stroke="var(--accent2)"
+            stroke-dasharray="175.9" stroke-dashoffset="26.4" id="ring-revenue"/>
+          <text class="ring-text" x="32" y="32" id="ring-revenue-pct">85%</text>
+        </svg>
+        <div class="ring-info">
+          <div class="ring-title">収益停止対策</div>
+          <div class="ring-sub">顔出し・ナレーター・フィッシュ</div>
+          <div class="ring-sub" style="color:var(--red);margin-top:2px;">⚠ 通知から10日以内に改変</div>
+        </div>
+      </div>
+
+      <!-- goal items -->
+      <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+        <div class="goal-item">
+          <div class="goal-row">
+            <span class="goal-name">月収入（確定）</span>
+            <span class="goal-nums"><span>25万</span>円 / 月（and°固定）</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill fill-green" style="width:100%"></div></div>
+        </div>
+        <div class="goal-item">
+          <div class="goal-row">
+            <span class="goal-name">かつや案件収入</span>
+            <span class="goal-nums">粗利 <span>20</span>%（毎月変動）</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill fill-blue" style="width:60%"></div></div>
+        </div>
+        <div class="goal-item">
+          <div class="goal-row">
+            <span class="goal-name">ライズファン</span>
+            <span class="goal-nums"><span>引き継ぎ</span>完了目標</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill fill-yellow" style="width:55%"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Right Column ── -->
+  <div class="col-right">
+
+    <!-- Projects -->
+    <div class="card">
+      <div class="card-header"><div class="card-title">案件ステータス</div></div>
+
+      <div class="project-card">
+        <div class="project-header">
+          <div class="project-name">🏢 株式会社 and°</div>
+          <span class="project-status status-warning">移行期</span>
+        </div>
+        <div class="project-meta">品質管理部専属 → 5月末でED終了</div>
+        <div class="project-reward">¥250,000 / 月（固定）</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">担当：マニュアル・オンボーディング・PM</div>
+        <div class="progress-bar"><div class="progress-fill fill-green" style="width:85%"></div></div>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <a href="https://www.notion.so/33c4b5f36fc680d497d7d4486fab4d20" target="_blank" class="btn" style="font-size:10px;padding:4px 8px;">Notion</a>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-header">
+          <div class="project-name">⚔️ 橘克弥（かつや）</div>
+          <span class="project-status status-active">進行中</span>
+        </div>
+        <div class="project-meta">2チャンネル ディレクション</div>
+        <div class="project-reward">粗利 20%（変動）</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">AD：清水さん・神野さん</div>
+        <div class="progress-bar"><div class="progress-fill fill-blue" style="width:60%"></div></div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-header">
+          <div class="project-name">📡 ライズファン</div>
+          <span class="project-status status-support">引き継ぎ</span>
+        </div>
+        <div class="project-meta">軍事系チャンネル・コンサル</div>
+        <div class="project-reward">要確認（請求書あり）</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">担当D 自走目標まで</div>
+        <div class="progress-bar"><div class="progress-fill fill-yellow" style="width:50%"></div></div>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <a href="https://www.notion.so/e9f02576532f4e40a018b39dbe70cf2b" target="_blank" class="btn" style="font-size:10px;padding:4px 8px;">Notion</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Quick Links -->
+    <div class="card">
+      <div class="card-header"><div class="card-title">クイックリンク</div></div>
+      <div class="link-grid">
+        <a href="https://www.notion.so/33c4b5f36fc680d497d7d4486fab4d20" target="_blank" class="notion-link">
+          <span class="notion-icon">📋</span>and° タスク
+        </a>
+        <a href="https://www.notion.so/e9f02576532f4e40a018b39dbe70cf2b" target="_blank" class="notion-link">
+          <span class="notion-icon">📋</span>全案件タスク
+        </a>
+        <a href="https://www.notion.so/d7e4a668b4034b4bbb42a59a39a25a4e" target="_blank" class="notion-link">
+          <span class="notion-icon">🤖</span>Claude作業ログ
+        </a>
+        <a href="https://www.notion.so/3564b5f36fc681cbb3e8e8a37299432a" target="_blank" class="notion-link">
+          <span class="notion-icon">🔍</span>参考元チェッカー
+        </a>
+        <a href="https://www.notion.so/3564b5f36fc680b9a6b0c2b8635f4f84" target="_blank" class="notion-link">
+          <span class="notion-icon">⚡</span>マニュアル自動化
+        </a>
+        <a href="https://www.notion.so/33c4b5f36fc68085b440f85d8edb0915" target="_blank" class="notion-link">
+          <span class="notion-icon">🎬</span>品質改善
+        </a>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="card" style="border-color:rgba(248,113,113,.3);">
+      <div class="card-header"><div class="card-title" style="color:var(--red);">⚠ アラート</div></div>
+      <div style="font-size:12px;line-height:1.7;">
+        <div style="padding:6px 0;border-bottom:1px solid var(--border);">
+          <span style="color:var(--red);font-weight:700;">緊急</span> and° ED業務 → 5月末終了・品質管理専属へ
+        </div>
+        <div style="padding:6px 0;border-bottom:1px solid var(--border);">
+          <span style="color:var(--yellow);font-weight:700;">注意</span> 収益停止リスク対策：通知から<strong>10日以内</strong>に改変
+        </div>
+        <div style="padding:6px 0;">
+          <span style="color:var(--accent);font-weight:700;">今夜</span> 里澤さんMTG 22:00〜
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Clock ──
+function updateClock() {
+  const now = new Date();
+  const jst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
+  const hh = String(jst.getHours()).padStart(2,'0');
+  const mm = String(jst.getMinutes()).padStart(2,'0');
+  document.getElementById('today-time').textContent = hh + ':' + mm + ' JST';
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+// ── Timeline ──
+const schedule = [
+  { time:'09:00', label:'朝の確認・今日の段取り整理' },
+  { time:'09:15', label:'Claude Code台本自動化' },
+  { time:'09:30', label:'Claude Code台本自動化（続き）' },
+  { time:'09:45', label:'Claude Code台本自動化（続き）' },
+  { time:'10:00', label:'Claude Code台本自動化（続き）' },
+  { time:'10:15', label:'ナイトウ16サムネ' },
+  { time:'10:30', label:'ナイトウ16サムネ（続き）' },
+  { time:'10:45', label:'ダイロク登録促す音声' },
+  { time:'11:00', label:'納品スプレッド' },
+  { time:'11:15', label:'休憩・振り返り' },
+  { time:'11:30', label:'自由作業・インプット' },
+  { time:'12:00', label:'昼休憩' },
+  { time:'13:00', label:'自由作業' },
+  { time:'18:00', label:'里澤さんMTG準備' },
+  { time:'18:30', label:'里澤さんMTG準備（続き）' },
+  { time:'19:00', label:'📞 ウェディング', fixed: true },
+  { time:'20:15', label:'休憩' },
+  { time:'21:00', label:'里澤さんMTG最終確認' },
+  { time:'22:00', label:'🤝 里澤さんMTG', fixed: true },
+  { time:'23:00', label:'終了・翌日タスク確認' },
+];
+
+function buildTimeline() {
+  const tl = document.getElementById('timeline');
+  const now = new Date();
+  const jst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
+  const nowMin = jst.getHours() * 60 + jst.getMinutes();
+
+  let html = '';
+  for (let i = 0; i < schedule.length; i++) {
+    const s = schedule[i];
+    const [hh, mm] = s.time.split(':').map(Number);
+    const sMin = hh * 60 + mm;
+    const nextMin = i < schedule.length - 1
+      ? (parseInt(schedule[i+1].time)*60 + parseInt(schedule[i+1].time.split(':')[1]))
+      : sMin + 60;
+    const isDone = nowMin > (i < schedule.length - 1
+      ? (parseInt(schedule[i+1].time.replace(':',''))/100|0)*60 + parseInt(schedule[i+1].time.split(':')[1])
+      : sMin + 60);
+    const isCurrent = nowMin >= sMin && (i === schedule.length - 1 || nowMin < (parseInt(schedule[i+1].time.replace(':',''))/100|0)*60 + parseInt(schedule[i+1].time.split(':')[1]));
+
+    let cls = s.fixed ? 'fixed' : '';
+    if (isDone) cls = 'done-tl';
+    if (isCurrent) cls = 'current';
+
+    const badge = s.fixed ? '<span class="tl-status status-fixed">固定</span>' : '';
+
+    html += `<div class="tl-item ${cls}">
+      <div class="tl-time">${s.time}</div>
+      <div class="tl-dot"></div>
+      <div class="tl-content"><span class="tl-label">${s.label}${badge}</span></div>
+    </div>`;
+  }
+  tl.innerHTML = html;
+}
+buildTimeline();
+
+// ── Task toggle ──
+let taskStates = [false,false,false,false,false,false];
+function toggleTask(idx) {
+  taskStates[idx] = !taskStates[idx];
+  const item = document.getElementById('task-' + idx);
+  if (taskStates[idx]) item.classList.add('done');
+  else item.classList.remove('done');
+  updateProgress();
+}
+function updateProgress() {
+  const done = taskStates.filter(Boolean).length;
+  document.getElementById('task-progress').textContent = done + '/' + taskStates.length + ' 完了';
+}
+</script>
+
+</body>
+</html>
