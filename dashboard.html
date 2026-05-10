@@ -417,7 +417,7 @@
           <div class="matrix-label">🔴 A — 緊急×重要</div>
           <div class="task-item" id="task-0">
             <input type="checkbox" id="cb-0" onchange="toggleTask(0)">
-            <label for="cb-0">里澤さんMTG準備</label>
+            <label for="cb-0">Claude Code台本自動化<span class="tag tag-katsuya">かつや</span></label>
           </div>
         </div>
         <!-- B: 重要×非緊急 -->
@@ -425,7 +425,7 @@
           <div class="matrix-label">🟡 B — 重要×非緊急</div>
           <div class="task-item" id="task-1">
             <input type="checkbox" id="cb-1" onchange="toggleTask(1)">
-            <label for="cb-1">Claude Code台本自動化<span class="tag tag-katsuya">かつや</span></label>
+            <label for="cb-1">ナイトウ16サムネ<span class="tag tag-katsuya">かつや</span></label>
           </div>
         </div>
         <!-- C: 緊急×非重要 -->
@@ -439,17 +439,13 @@
             <input type="checkbox" id="cb-3" onchange="toggleTask(3)">
             <label for="cb-3">納品スプレッド<span class="tag tag-katsuya">かつや</span></label>
           </div>
-          <div class="task-item" id="task-4">
-            <input type="checkbox" id="cb-4" onchange="toggleTask(4)">
-            <label for="cb-4">ナイトウ16サムネ<span class="tag tag-katsuya">かつや</span></label>
-          </div>
         </div>
         <!-- D: 後回し -->
         <div class="matrix-cell d">
           <div class="matrix-label">⚪ D — 後回し</div>
-          <div class="task-item" id="task-5">
-            <input type="checkbox" id="cb-5" onchange="toggleTask(5)">
-            <label for="cb-5">台本チェックGPTs<span class="tag tag-risefan">ライズ</span></label>
+          <div class="task-item" id="task-4">
+            <input type="checkbox" id="cb-4" onchange="toggleTask(4)">
+            <label for="cb-4">台本チェックGPTs<span class="tag tag-risefan">ライズ</span></label>
           </div>
         </div>
       </div>
@@ -685,13 +681,8 @@ const schedule = [
   { time:'11:15', label:'休憩・振り返り' },
   { time:'11:30', label:'自由作業・インプット' },
   { time:'12:00', label:'昼休憩' },
-  { time:'13:00', label:'自由作業' },
-  { time:'18:00', label:'里澤さんMTG準備' },
-  { time:'18:30', label:'里澤さんMTG準備（続き）' },
-  { time:'19:00', label:'📞 ウェディング', fixed: true },
-  { time:'20:15', label:'休憩' },
-  { time:'21:00', label:'里澤さんMTG最終確認' },
-  { time:'22:00', label:'🤝 里澤さんMTG', fixed: true },
+  { time:'13:00', label:'台本チェックGPTs（余裕があれば）' },
+  { time:'14:00', label:'自由作業' },
   { time:'23:00', label:'終了・翌日タスク確認' },
 ];
 
@@ -731,7 +722,7 @@ function buildTimeline() {
 buildTimeline();
 
 // ── Task toggle ──
-let taskStates = [false,false,false,false,false,false];
+let taskStates = [false,false,false,false,false];
 function toggleTask(idx) {
   taskStates[idx] = !taskStates[idx];
   const item = document.getElementById('task-' + idx);
