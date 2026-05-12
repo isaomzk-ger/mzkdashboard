@@ -997,26 +997,92 @@
 
 <!-- ── 収入 ── -->
 <div class="panel" id="panel-income">
-  <div class="income-grid">
+
+  <!-- サマリー stat -->
+  <div class="income-grid" style="grid-template-columns:repeat(3,1fr);">
     <div class="income-stat accent">
-      <div class="income-stat-label">4月分 確定合計</div>
-      <div class="income-stat-value">¥526,699</div>
-      <div class="income-stat-sub">and° + かつや + ライズファン</div>
+      <div class="income-stat-label">2026年 累計（1〜4月）</div>
+      <div class="income-stat-value">¥2,068,734</div>
+      <div class="income-stat-sub">全案件合計（税込・確定分）</div>
+    </div>
+    <div class="income-stat">
+      <div class="income-stat-label">月平均（4ヶ月）</div>
+      <div class="income-stat-value" style="color:var(--purple);">¥517,183</div>
+      <div class="income-stat-sub">年換算ペース ¥6,206,202</div>
     </div>
     <div class="income-stat green">
-      <div class="income-stat-label">経費差し引き後（概算）</div>
-      <div class="income-stat-value">¥505,019</div>
-      <div class="income-stat-sub">サブスク ¥21,680 / 経費率 4.1%</div>
+      <div class="income-stat-label">直近月（4月）</div>
+      <div class="income-stat-value">¥526,699</div>
+      <div class="income-stat-sub">目標①達成 ✓（105%）</div>
     </div>
   </div>
 
+  <!-- 月別サマリー -->
+  <div class="income-table" style="margin-bottom:20px;">
+    <table>
+      <thead>
+        <tr>
+          <th>対象月</th>
+          <th style="text-align:right;">and°</th>
+          <th style="text-align:right;">かつや</th>
+          <th style="text-align:right;">ライズファン</th>
+          <th style="text-align:right;">月計</th>
+          <th>備考</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:700;">2026年1月</td>
+          <td style="text-align:right;">¥181,440</td>
+          <td style="text-align:right;">¥160,834</td>
+          <td style="text-align:right;color:var(--muted);">—</td>
+          <td style="text-align:right;font-weight:700;">¥342,274</td>
+          <td style="font-size:11px;color:var(--muted);">and°2ch＋インセンティブ</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">2026年2月</td>
+          <td style="text-align:right;">¥436,320</td>
+          <td style="text-align:right;">¥116,887</td>
+          <td style="text-align:right;color:var(--muted);">—</td>
+          <td style="text-align:right;font-weight:700;">¥553,207</td>
+          <td style="font-size:11px;color:var(--muted);">and°に編集者管理費¥250,000含む</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">2026年3月</td>
+          <td style="text-align:right;">¥364,064</td>
+          <td style="text-align:right;">¥199,990</td>
+          <td style="text-align:right;">¥82,500</td>
+          <td style="text-align:right;font-weight:700;">¥646,554</td>
+          <td style="font-size:11px;color:var(--muted);">and°に編集者管理費¥250,000含む</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">2026年4月</td>
+          <td style="text-align:right;">¥250,000</td>
+          <td style="text-align:right;">¥194,199</td>
+          <td style="text-align:right;">¥82,500</td>
+          <td style="text-align:right;font-weight:700;">¥526,699</td>
+          <td style="font-size:11px;color:var(--muted);">and°新固定額（品質管理部）</td>
+        </tr>
+        <tr style="background:var(--accent-light);">
+          <td style="font-weight:800;">累計</td>
+          <td style="text-align:right;font-weight:700;">¥1,231,824</td>
+          <td style="text-align:right;font-weight:700;">¥671,910</td>
+          <td style="text-align:right;font-weight:700;">¥165,000</td>
+          <td style="text-align:right;font-weight:800;font-size:15px;color:var(--accent);">¥2,068,734</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 4月詳細 -->
+  <div style="font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">4月分 詳細</div>
   <div class="income-table">
     <table>
       <thead>
         <tr>
           <th>案件</th>
           <th>種別</th>
-          <th>対象月</th>
           <th>金額（税込）</th>
           <th>ステータス</th>
         </tr>
@@ -1024,41 +1090,36 @@
       <tbody>
         <tr>
           <td>株式会社 and°</td>
-          <td>固定報酬</td>
-          <td>2026年4月分</td>
+          <td>固定報酬（品質管理部）</td>
           <td class="confirmed">¥250,000</td>
-          <td><span style="background:var(--green-light);color:var(--green);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;">確定</span></td>
+          <td><span style="background:var(--yellow-light);color:var(--yellow);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;">5月末入金</span></td>
         </tr>
         <tr>
           <td>橘克弥（かつや）</td>
           <td>粗利20%</td>
-          <td>2026年4月分</td>
           <td class="confirmed">¥194,199</td>
-          <td><span style="background:var(--green-light);color:var(--green);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;">確定</span></td>
+          <td><span style="background:var(--yellow-light);color:var(--yellow);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;">5月末入金</span></td>
         </tr>
         <tr>
           <td style="padding-left:28px;color:var(--muted);font-size:12px;">└ ミステリーナイト</td>
           <td style="color:var(--muted);font-size:12px;">—</td>
-          <td style="color:var(--muted);font-size:12px;">2026年4月分</td>
           <td style="color:var(--muted);font-size:12px;">¥80,884</td>
           <td></td>
         </tr>
         <tr>
           <td style="padding-left:28px;color:var(--muted);font-size:12px;">└ ダイロクチャンネル</td>
           <td style="color:var(--muted);font-size:12px;">—</td>
-          <td style="color:var(--muted);font-size:12px;">2026年4月分</td>
           <td style="color:var(--muted);font-size:12px;">¥113,315</td>
           <td></td>
         </tr>
         <tr>
           <td>ライズファン</td>
           <td>YouTubeディレクション</td>
-          <td>2026年4月分</td>
           <td class="confirmed">¥82,500</td>
-          <td><span style="background:var(--green-light);color:var(--green);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;">確定</span></td>
+          <td><span style="background:var(--yellow-light);color:var(--yellow);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;">5月末入金</span></td>
         </tr>
         <tr style="background:var(--accent-light);">
-          <td colspan="3" style="font-weight:800;">合計</td>
+          <td colspan="2" style="font-weight:800;">4月合計</td>
           <td style="font-weight:800;font-size:15px;color:var(--accent);">¥526,699</td>
           <td></td>
         </tr>
@@ -1079,10 +1140,10 @@
       <div style="font-size:11px;color:var(--muted);">目標② ¥700,000　あと ¥173,301</div>
     </div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow-sm);">
-      <div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">年間累計（2026年 確定分）</div>
-      <div style="font-size:28px;font-weight:800;color:var(--accent);line-height:1.1;">¥526,699</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:5px;">目標① ¥6,000,000　<b style="color:var(--green);">達成ペース</b></div>
-      <div style="font-size:11px;color:var(--muted);">目標② ¥8,400,000　年換算ペース <b style="color:var(--text);">¥632万</b></div>
+      <div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">年間累計（2026年1〜4月）</div>
+      <div style="font-size:28px;font-weight:800;color:var(--accent);line-height:1.1;">¥2,068,734</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:5px;">目標① ¥6,000,000　<b style="color:var(--green);">達成ペース（34.5%）</b></div>
+      <div style="font-size:11px;color:var(--muted);">目標② ¥8,400,000　年換算ペース <b style="color:var(--text);">¥620万</b></div>
     </div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow-sm);">
       <div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">経費差し引き後（概算）</div>
@@ -1136,9 +1197,9 @@
         <!-- 年間 -->
         <div>
           <div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">年間実績（累計）</div>
-          <div style="font-size:32px;font-weight:800;color:var(--accent);line-height:1;">¥526,699</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px;margin-bottom:2px;">2026年確定分（4月まで）</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:16px;">年換算ペース　<b style="color:var(--text);">¥6,320,388</b></div>
+          <div style="font-size:32px;font-weight:800;color:var(--accent);line-height:1;">¥2,068,734</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;margin-bottom:2px;">2026年1〜4月 確定累計</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:16px;">年換算ペース　<b style="color:var(--text);">¥6,206,202（¥620万）</b></div>
 
           <div class="meter-wrap">
             <div class="meter-header">
@@ -1146,20 +1207,20 @@
               <div class="meter-nums" style="color:var(--green);font-weight:700;">達成ペース ✓</div>
             </div>
             <div class="meter-track">
-              <div class="meter-fill" style="width:8.8%;background:var(--green);"></div>
+              <div class="meter-fill" style="width:34.5%;background:var(--green);"></div>
             </div>
-            <div class="meter-sub">¥526,699 ／ ¥6,000,000　（8.8%）</div>
+            <div class="meter-sub">¥2,068,734 ／ ¥6,000,000　（34.5%）</div>
           </div>
 
           <div class="meter-wrap" style="margin-top:14px;">
             <div class="meter-header">
               <div class="meter-label">🚀 目標② 年840万</div>
-              <div class="meter-nums">6.3%</div>
+              <div class="meter-nums">24.6%</div>
             </div>
             <div class="meter-track">
-              <div class="meter-fill" style="width:6.3%;background:var(--purple);"></div>
+              <div class="meter-fill" style="width:24.6%;background:var(--purple);"></div>
             </div>
-            <div class="meter-sub">¥526,699 ／ ¥8,400,000　月あたりあと＋¥173,301</div>
+            <div class="meter-sub">¥2,068,734 ／ ¥8,400,000　月平均あと＋¥182,817必要</div>
           </div>
         </div>
 
