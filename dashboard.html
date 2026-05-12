@@ -595,12 +595,121 @@
   .expense-table .total-row .amount { color: var(--text); font-size: 15px; }
   .expense-note { font-size: 10px; color: var(--muted); margin-top: 8px; text-align: right; }
 
-  /* ── Responsive ── */
-  @media (max-width: 1000px) {
-    .today-grid { grid-template-columns: 1fr; }
-    .week-grid  { grid-template-columns: repeat(4, 1fr); }
+  /* ── Responsive: Tablet ── */
+  @media (max-width: 960px) {
+    .today-grid    { grid-template-columns: 1fr; }
     .projects-grid { grid-template-columns: 1fr 1fr; }
-    .income-grid { grid-template-columns: 1fr; }
+    .goals-grid-3  { grid-template-columns: 1fr 1fr; }
+    .week-grid     { grid-template-columns: repeat(4, 1fr); }
+    .income-grid   { grid-template-columns: 1fr 1fr !important; }
+  }
+
+  /* ── Responsive: Mobile ── */
+  @media (max-width: 640px) {
+    body { font-size: 12px; }
+
+    /* Header: ロゴ行 + タブ行の2段構成 */
+    .header {
+      padding: 0;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+    .header-brand {
+      padding: 10px 16px;
+      margin-right: auto;
+    }
+    .logo { font-size: 15px; }
+    .date-pill { font-size: 10px; padding: 2px 8px; }
+
+    /* タブ: 横スクロール */
+    .tabs {
+      order: 3;
+      width: 100%;
+      border-top: 1px solid var(--border);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      gap: 0;
+      flex-shrink: 0;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      padding: 0 16px;
+      height: 44px;
+      font-size: 12px;
+      flex-shrink: 0;
+      gap: 4px;
+    }
+    .tab-icon { font-size: 14px; }
+
+    /* ヘッダー右: バッジ非表示、Notionボタンのみ */
+    .header-right { padding: 8px 16px 8px 0; gap: 6px; }
+    #hstat-high, #hstat-mid { display: none; }
+
+    /* パネル余白 */
+    .panel { padding: 14px 16px 32px; }
+
+    /* カード */
+    .card { padding: 14px 16px; }
+    .card-title { font-size: 13px; }
+
+    /* 全グリッド → 1カラム */
+    .today-grid,
+    .projects-grid,
+    .goals-grid,
+    .goals-grid-3,
+    .income-grid { grid-template-columns: 1fr !important; }
+
+    /* 今週: 横スクロール */
+    .week-grid {
+      grid-template-columns: repeat(7, minmax(88px, 1fr));
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      gap: 6px;
+      padding-bottom: 4px;
+    }
+    .week-grid::-webkit-scrollbar { display: none; }
+    .week-day { min-width: 88px; }
+    .week-event { font-size: 10px; }
+
+    /* テーブル: 横スクロール */
+    .income-table,
+    .expense-table {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .income-table table,
+    .expense-table table { min-width: 480px; }
+
+    /* 収入 stat */
+    .income-grid { gap: 10px; }
+    .income-stat-value { font-size: 22px; }
+
+    /* 目標 月次/年間 2カラム → 1カラム */
+    .goal-meter-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
+
+    /* クイックリンク → 1カラム */
+    .quick-links-grid { grid-template-columns: 1fr !important; }
+
+    /* タスク行 */
+    .task-name { font-size: 12px; }
+    .task-tag { font-size: 10px; }
+
+    /* カレンダー */
+    .cal-event { padding: 8px 0; }
+    .cal-time { font-size: 11px; min-width: 36px; }
+
+    /* メーター */
+    .meter-label { font-size: 12px; }
+    .meter-nums b { font-size: 13px; }
+
+    /* ロードマップ */
+    .rm-period { font-size: 10px; }
+    .rm-task { font-size: 11px; }
+
+    /* 案件カード内の大きい数字 */
+    .income-stat-value { font-size: 20px; }
   }
 
   /* ── Scrollbar ── */
@@ -805,7 +914,7 @@
         <div class="card-header">
           <div class="card-title">🔗 クイックリンク</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div class="quick-links-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
           <a href="https://www.notion.so/e9f02576532f4e40a018b39dbe70cf2b" target="_blank" class="btn" style="font-size:11px;justify-content:center;">📋 全案件タスク</a>
           <a href="https://www.notion.so/33c4b5f36fc680d497d7d4486fab4d20" target="_blank" class="btn" style="font-size:11px;justify-content:center;">🏢 and° タスク</a>
           <a href="https://www.notion.so/d7e4a668b4034b4bbb42a59a39a25a4e" target="_blank" class="btn" style="font-size:11px;justify-content:center;">🤖 Claude作業ログ</a>
@@ -821,12 +930,13 @@
 
 <!-- ── 今週 ── -->
 <div class="panel" id="panel-week">
-  <div class="card" style="margin-bottom:0;">
+  <div class="card" style="margin-bottom:0;overflow:hidden;">
     <div class="card-header">
       <div class="card-title">📆 今週のスケジュール</div>
       <div class="card-badge">5月12日〜18日</div>
     </div>
-    <div class="week-grid">
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -16px;padding:0 16px;">
+    <div class="week-grid" style="min-width:600px;">
 
       <!-- 月 5/12 -->
       <div class="week-day today">
@@ -929,6 +1039,7 @@
         </div>
       </div>
 
+    </div><!-- /week-grid scroll wrapper -->
     </div>
   </div>
 </div>
@@ -1018,8 +1129,8 @@
   </div>
 
   <!-- 月別サマリー -->
-  <div class="income-table" style="margin-bottom:20px;">
-    <table>
+  <div class="income-table" style="margin-bottom:20px;overflow-x:auto;-webkit-overflow-scrolling:touch;">
+    <table style="min-width:520px;">
       <thead>
         <tr>
           <th>対象月</th>
@@ -1163,7 +1274,7 @@
       </div>
 
       <!-- 月次 / 年間 2カラム -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px;">
+      <div class="goal-meter-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px;">
 
         <!-- 月次 -->
         <div>
