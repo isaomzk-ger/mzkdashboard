@@ -595,6 +595,33 @@
   .expense-table .total-row .amount { color: var(--text); font-size: 15px; }
   .expense-note { font-size: 10px; color: var(--muted); margin-top: 8px; text-align: right; }
 
+  /* ── Income bar chart ── */
+  .inc-bar-col { display:flex; flex-direction:column; align-items:center; flex:1; }
+  .inc-bar { width:100%; border-radius:6px 6px 0 0; min-height:4px; }
+  .inc-bar-val { font-size:10px; font-weight:700; color:var(--text); margin-bottom:4px; }
+  .inc-bar-label { font-size:10px; color:var(--muted); margin-top:6px; text-align:center; }
+
+  /* ── Goals ring chart ── */
+  .goal-ring-wrap { position:relative; width:180px; height:180px; flex-shrink:0; }
+  .goal-ring-wrap svg { width:180px; height:180px; transform:rotate(-90deg); }
+  .goal-ring-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none; }
+  .goal-ring-pct { font-size:32px; font-weight:900; color:var(--accent); line-height:1; }
+  .goal-ring-label { font-size:10px; color:var(--muted); margin-top:3px; }
+
+  /* ── Goals non-income sections ── */
+  .goal-section { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin-bottom:14px; box-shadow:var(--shadow-sm); }
+  .goal-section-title { font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+  .habit-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .habit-label { font-size:13px; font-weight:600; flex:1; }
+  .habit-dots { display:flex; gap:5px; }
+  .habit-dot { width:22px; height:22px; border-radius:50%; border:2px solid var(--border); cursor:pointer; transition:background .15s,border-color .15s; }
+  .habit-dot.done { background:var(--accent); border-color:var(--accent); }
+  .goal-monthly-bar-row { display:flex; gap:4px; align-items:flex-end; height:60px; margin:12px 0 4px; }
+  .gm-bar-col { display:flex; flex-direction:column; align-items:center; flex:1; }
+  .gm-bar { width:100%; border-radius:4px 4px 0 0; min-height:3px; }
+  .gm-bar-label { font-size:9px; color:var(--muted); margin-top:4px; }
+  .qualitative-area { width:100%; min-height:100px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:12px; font-size:13px; color:var(--text); line-height:1.7; resize:vertical; font-family:inherit; }
+
   /* ── Responsive: Tablet ── */
   @media (max-width: 960px) {
     .today-grid    { grid-template-columns: 1fr; }
@@ -1189,141 +1216,344 @@
 <!-- ── 収入 ── -->
 <div class="panel" id="panel-income">
 
-  <!-- サマリー stat -->
-  <div class="income-grid" style="grid-template-columns:repeat(3,1fr);">
-    <div class="income-stat accent">
-      <div class="income-stat-label">2026年 累計（1〜4月）</div>
-      <div class="income-stat-value">¥2,068,734</div>
-      <div class="income-stat-sub">全案件合計（税込・確定分）</div>
+  <!-- 月次バーチャート -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-header">
+      <div class="card-title">📊 月次収入トレンド（2026年）</div>
+      <div class="card-badge">1〜5月</div>
     </div>
-    <div class="income-stat">
-      <div class="income-stat-label">月平均（4ヶ月）</div>
-      <div class="income-stat-value" style="color:var(--purple);">¥517,183</div>
-      <div class="income-stat-sub">年換算ペース ¥6,206,202</div>
-    </div>
-    <div class="income-stat green">
-      <div class="income-stat-label">直近月（4月）</div>
-      <div class="income-stat-value">¥526,699</div>
-      <div class="income-stat-sub">目標①達成 ✓（105%）</div>
+    <div style="display:flex;align-items:flex-end;gap:10px;height:120px;padding:0 4px 0;">
+      <div class="inc-bar-col">
+        <div class="inc-bar-val">¥342K</div>
+        <div class="inc-bar" style="height:53%;background:var(--accent);"></div>
+        <div class="inc-bar-label">1月</div>
+      </div>
+      <div class="inc-bar-col">
+        <div class="inc-bar-val">¥553K</div>
+        <div class="inc-bar" style="height:86%;background:var(--accent);"></div>
+        <div class="inc-bar-label">2月</div>
+      </div>
+      <div class="inc-bar-col">
+        <div class="inc-bar-val">¥647K</div>
+        <div class="inc-bar" style="height:100%;background:var(--accent);"></div>
+        <div class="inc-bar-label">3月</div>
+      </div>
+      <div class="inc-bar-col">
+        <div class="inc-bar-val">¥527K</div>
+        <div class="inc-bar" style="height:81%;background:var(--green);"></div>
+        <div class="inc-bar-label">4月</div>
+      </div>
+      <div class="inc-bar-col">
+        <div class="inc-bar-val">〜¥527K</div>
+        <div class="inc-bar" style="height:81%;background:var(--border);border:2px dashed var(--muted);"></div>
+        <div class="inc-bar-label" style="color:var(--muted);">5月<br><span style="font-size:9px;">見込み</span></div>
+      </div>
+      <div style="flex:1"></div>
+      <div style="font-size:10px;color:var(--muted);align-self:center;text-align:right;line-height:1.8;">
+        最高月<br><b style="color:var(--text);">¥646,554</b><br>（3月）<br><br>月平均<br><b style="color:var(--accent);">¥517,183</b>
+      </div>
     </div>
   </div>
 
-  <!-- 月別サマリー -->
-  <div class="income-table" style="margin-bottom:20px;overflow-x:auto;-webkit-overflow-scrolling:touch;">
-    <table style="min-width:520px;">
+  <!-- 月別明細 -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-header">
+      <div class="card-title">🗓 月別明細</div>
+      <div class="card-badge">確定分</div>
+    </div>
+    <div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:480px;">
       <thead>
-        <tr>
-          <th>対象月</th>
-          <th style="text-align:right;">and°</th>
-          <th style="text-align:right;">かつや</th>
-          <th style="text-align:right;">ライズファン</th>
-          <th style="text-align:right;">月計</th>
-          <th>備考</th>
+        <tr style="border-bottom:2px solid var(--border);">
+          <th style="padding:8px 6px;text-align:left;color:var(--muted);font-weight:700;">月</th>
+          <th style="padding:8px 6px;text-align:right;color:var(--muted);font-weight:700;">and°</th>
+          <th style="padding:8px 6px;text-align:right;color:var(--muted);font-weight:700;">かつや</th>
+          <th style="padding:8px 6px;text-align:right;color:var(--muted);font-weight:700;">ライズファン</th>
+          <th style="padding:8px 6px;text-align:right;color:var(--muted);font-weight:700;">月計</th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td style="font-weight:700;">2026年1月</td>
-          <td style="text-align:right;">¥181,440</td>
-          <td style="text-align:right;">¥160,834</td>
-          <td style="text-align:right;color:var(--muted);">—</td>
-          <td style="text-align:right;font-weight:700;">¥342,274</td>
-          <td style="font-size:11px;color:var(--muted);">and°2ch＋インセンティブ</td>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:9px 6px;font-weight:600;">1月</td>
+          <td style="padding:9px 6px;text-align:right;">¥181,440</td>
+          <td style="padding:9px 6px;text-align:right;">¥160,834</td>
+          <td style="padding:9px 6px;text-align:right;color:var(--muted);">—</td>
+          <td style="padding:9px 6px;text-align:right;font-weight:700;">¥342,274</td>
         </tr>
-        <tr>
-          <td style="font-weight:700;">2026年2月</td>
-          <td style="text-align:right;">¥436,320</td>
-          <td style="text-align:right;">¥116,887</td>
-          <td style="text-align:right;color:var(--muted);">—</td>
-          <td style="text-align:right;font-weight:700;">¥553,207</td>
-          <td style="font-size:11px;color:var(--muted);">and°に編集者管理費¥250,000含む</td>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:9px 6px;font-weight:600;">2月</td>
+          <td style="padding:9px 6px;text-align:right;">¥436,320</td>
+          <td style="padding:9px 6px;text-align:right;">¥116,887</td>
+          <td style="padding:9px 6px;text-align:right;color:var(--muted);">—</td>
+          <td style="padding:9px 6px;text-align:right;font-weight:700;">¥553,207</td>
         </tr>
-        <tr>
-          <td style="font-weight:700;">2026年3月</td>
-          <td style="text-align:right;">¥364,064</td>
-          <td style="text-align:right;">¥199,990</td>
-          <td style="text-align:right;">¥82,500</td>
-          <td style="text-align:right;font-weight:700;">¥646,554</td>
-          <td style="font-size:11px;color:var(--muted);">and°に編集者管理費¥250,000含む</td>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:9px 6px;font-weight:600;">3月</td>
+          <td style="padding:9px 6px;text-align:right;">¥364,064</td>
+          <td style="padding:9px 6px;text-align:right;">¥199,990</td>
+          <td style="padding:9px 6px;text-align:right;">¥82,500</td>
+          <td style="padding:9px 6px;text-align:right;font-weight:700;">¥646,554</td>
         </tr>
-        <tr>
-          <td style="font-weight:700;">2026年4月</td>
-          <td style="text-align:right;">¥250,000</td>
-          <td style="text-align:right;">¥194,199</td>
-          <td style="text-align:right;">¥82,500</td>
-          <td style="text-align:right;font-weight:700;">¥526,699</td>
-          <td style="font-size:11px;color:var(--muted);">and°新固定額（品質管理部）</td>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:9px 6px;font-weight:600;">4月</td>
+          <td style="padding:9px 6px;text-align:right;">¥250,000</td>
+          <td style="padding:9px 6px;text-align:right;">¥194,199</td>
+          <td style="padding:9px 6px;text-align:right;">¥82,500</td>
+          <td style="padding:9px 6px;text-align:right;font-weight:700;">¥526,699</td>
         </tr>
         <tr style="background:var(--accent-light);">
-          <td style="font-weight:800;">累計</td>
-          <td style="text-align:right;font-weight:700;">¥1,231,824</td>
-          <td style="text-align:right;font-weight:700;">¥671,910</td>
-          <td style="text-align:right;font-weight:700;">¥165,000</td>
-          <td style="text-align:right;font-weight:800;font-size:15px;color:var(--accent);">¥2,068,734</td>
-          <td></td>
+          <td style="padding:9px 6px;font-weight:800;">累計</td>
+          <td style="padding:9px 6px;text-align:right;font-weight:700;">¥1,231,824</td>
+          <td style="padding:9px 6px;text-align:right;font-weight:700;">¥671,910</td>
+          <td style="padding:9px 6px;text-align:right;font-weight:700;">¥165,000</td>
+          <td style="padding:9px 6px;text-align:right;font-weight:800;font-size:15px;color:var(--accent);">¥2,068,734</td>
         </tr>
       </tbody>
     </table>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--muted);padding:0 4px;">
+      ※ 2月3月のand°は編集者管理費¥250,000含む。4月より品質管理部固定¥250,000に移行。
+    </div>
   </div>
 
-  <!-- 4月詳細 -->
-  <div style="font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">4月分 詳細</div>
-  <div class="income-table">
-    <table>
-      <thead>
-        <tr>
-          <th>案件</th>
-          <th>種別</th>
-          <th>金額（税込）</th>
-          <th>ステータス</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>株式会社 and°</td>
-          <td>固定報酬（品質管理部）</td>
-          <td class="confirmed">¥250,000</td>
-          <td><span style="background:var(--yellow-light);color:var(--yellow);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;">5月末入金</span></td>
-        </tr>
-        <tr>
-          <td>橘克弥（かつや）</td>
-          <td>粗利20%</td>
-          <td class="confirmed">¥194,199</td>
-          <td><span style="background:var(--yellow-light);color:var(--yellow);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;">5月末入金</span></td>
-        </tr>
-        <tr>
-          <td style="padding-left:28px;color:var(--muted);font-size:12px;">└ ミステリーナイト</td>
-          <td style="color:var(--muted);font-size:12px;">—</td>
-          <td style="color:var(--muted);font-size:12px;">¥80,884</td>
-          <td></td>
-        </tr>
-        <tr>
-          <td style="padding-left:28px;color:var(--muted);font-size:12px;">└ ダイロクチャンネル</td>
-          <td style="color:var(--muted);font-size:12px;">—</td>
-          <td style="color:var(--muted);font-size:12px;">¥113,315</td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>ライズファン</td>
-          <td>YouTubeディレクション</td>
-          <td class="confirmed">¥82,500</td>
-          <td><span style="background:var(--yellow-light);color:var(--yellow);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;">5月末入金</span></td>
-        </tr>
-        <tr style="background:var(--accent-light);">
-          <td colspan="2" style="font-weight:800;">4月合計</td>
-          <td style="font-weight:800;font-size:15px;color:var(--accent);">¥526,699</td>
-          <td></td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- 案件別構成 -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🥧 案件別構成（累計・1〜4月）</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+      <div style="text-align:center;padding:16px 8px;background:var(--accent-light);border-radius:12px;">
+        <div style="font-size:10px;font-weight:800;color:var(--accent);text-transform:uppercase;margin-bottom:6px;">and°</div>
+        <div style="font-size:22px;font-weight:800;color:var(--accent);">¥1,231,824</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">累計の 59.5%</div>
+        <div style="margin-top:8px;height:4px;background:var(--border);border-radius:4px;"><div style="height:4px;width:59.5%;background:var(--accent);border-radius:4px;"></div></div>
+      </div>
+      <div style="text-align:center;padding:16px 8px;background:var(--purple-light);border-radius:12px;">
+        <div style="font-size:10px;font-weight:800;color:var(--purple);text-transform:uppercase;margin-bottom:6px;">かつや</div>
+        <div style="font-size:22px;font-weight:800;color:var(--purple);">¥671,910</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">累計の 32.5%</div>
+        <div style="margin-top:8px;height:4px;background:var(--border);border-radius:4px;"><div style="height:4px;width:32.5%;background:var(--purple);border-radius:4px;"></div></div>
+      </div>
+      <div style="text-align:center;padding:16px 8px;background:var(--green-light);border-radius:12px;">
+        <div style="font-size:10px;font-weight:800;color:var(--green);text-transform:uppercase;margin-bottom:6px;">ライズファン</div>
+        <div style="font-size:22px;font-weight:800;color:var(--green);">¥165,000</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">累計の 8.0%</div>
+        <div style="margin-top:8px;height:4px;background:var(--border);border-radius:4px;"><div style="height:4px;width:8%;background:var(--green);border-radius:4px;"></div></div>
+      </div>
+    </div>
   </div>
+
 </div>
 
 <!-- ── 目標 ── -->
 <div class="panel" id="panel-goals">
 
-  <!-- 年間目標サマリー -->
-  <div class="goals-grid-3" style="margin-bottom:20px;">
+  <!-- ── 年間収入目標リング ── -->
+  <div class="goal-section" style="display:flex;align-items:center;gap:28px;flex-wrap:wrap;margin-bottom:14px;">
+    <div class="goal-ring-wrap">
+      <svg viewBox="0 0 180 180">
+        <!-- background track -->
+        <circle cx="90" cy="90" r="74" fill="none" stroke="var(--border)" stroke-width="18"/>
+        <!-- progress arc: 43.3% → circumference = 2π×74 ≈ 465 → dasharray=465, dashoffset=465×(1-0.433)≈263 -->
+        <circle cx="90" cy="90" r="74" fill="none" stroke="var(--accent)" stroke-width="18"
+          stroke-dasharray="465" stroke-dashoffset="264" stroke-linecap="round"/>
+      </svg>
+      <div class="goal-ring-center">
+        <div class="goal-ring-pct">43%</div>
+        <div class="goal-ring-label">年間目標</div>
+      </div>
+    </div>
+    <div style="flex:1;min-width:200px;">
+      <div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">2026年 収入目標 ¥6,000,000</div>
+      <div style="font-size:32px;font-weight:900;color:var(--accent);line-height:1.1;">¥2,595,433</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px;">確定 ¥2,068,734 ＋ 5月見込み ¥526,699</div>
+      <div style="margin:14px 0 6px;height:8px;background:var(--border);border-radius:8px;">
+        <div style="height:8px;width:43.3%;background:var(--accent);border-radius:8px;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);">
+        <span>残り ¥3,404,567</span>
+        <span>月平均あと <b style="color:var(--text);">¥476,651</b>（7ヶ月）</span>
+      </div>
+      <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div style="text-align:center;padding:10px 6px;background:var(--accent-light);border-radius:10px;">
+          <div style="font-size:10px;color:var(--accent);font-weight:800;">and°</div>
+          <div style="font-size:14px;font-weight:800;">¥1,232K</div>
+          <div style="font-size:10px;color:var(--muted);">59.5%</div>
+        </div>
+        <div style="text-align:center;padding:10px 6px;background:var(--purple-light);border-radius:10px;">
+          <div style="font-size:10px;color:var(--purple);font-weight:800;">かつや</div>
+          <div style="font-size:14px;font-weight:800;">¥672K</div>
+          <div style="font-size:10px;color:var(--muted);">32.5%</div>
+        </div>
+        <div style="text-align:center;padding:10px 6px;background:var(--green-light);border-radius:10px;">
+          <div style="font-size:10px;color:var(--green);font-weight:800;">ライズ</div>
+          <div style="font-size:14px;font-weight:800;">¥165K</div>
+          <div style="font-size:10px;color:var(--muted);">8.0%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 月別進捗バー（1〜12月） ── -->
+  <div class="goal-section" style="margin-bottom:14px;">
+    <div class="goal-section-title">📅 月別進捗（目標 ¥500K/月）</div>
+    <div class="goal-monthly-bar-row">
+      <!-- 各月の高さ: 最大をmax(¥647K)として相対 -->
+      <div class="gm-bar-col">
+        <div style="font-size:9px;font-weight:700;color:var(--text);margin-bottom:3px;">342K</div>
+        <div class="gm-bar" style="height:53%;background:var(--accent);"></div>
+        <div class="gm-bar-label">1</div>
+      </div>
+      <div class="gm-bar-col">
+        <div style="font-size:9px;font-weight:700;color:var(--text);margin-bottom:3px;">553K</div>
+        <div class="gm-bar" style="height:86%;background:var(--accent);"></div>
+        <div class="gm-bar-label">2</div>
+      </div>
+      <div class="gm-bar-col">
+        <div style="font-size:9px;font-weight:700;color:var(--green);margin-bottom:3px;">647K</div>
+        <div class="gm-bar" style="height:100%;background:var(--green);"></div>
+        <div class="gm-bar-label">3</div>
+      </div>
+      <div class="gm-bar-col">
+        <div style="font-size:9px;font-weight:700;color:var(--accent);margin-bottom:3px;">527K</div>
+        <div class="gm-bar" style="height:82%;background:var(--accent);"></div>
+        <div class="gm-bar-label">4</div>
+      </div>
+      <div class="gm-bar-col">
+        <div style="font-size:9px;font-weight:700;color:var(--muted);margin-bottom:3px;">〜527K</div>
+        <div class="gm-bar" style="height:82%;background:var(--border);border:2px dashed var(--muted);box-sizing:border-box;"></div>
+        <div class="gm-bar-label" style="color:var(--accent);">5</div>
+      </div>
+      <div class="gm-bar-col">
+        <div style="font-size:9px;color:var(--border);margin-bottom:3px;">—</div>
+        <div class="gm-bar" style="height:3px;background:var(--border);"></div>
+        <div class="gm-bar-label">6</div>
+      </div>
+      <div class="gm-bar-col">
+        <div style="font-size:9px;color:var(--border);margin-bottom:3px;">—</div>
+        <div class="gm-bar" style="height:3px;background:var(--border);"></div>
+        <div class="gm-bar-label">7</div>
+      </div>
+      <div class="gm-bar-col">
+        <div style="font-size:9px;color:var(--border);margin-bottom:3px;">—</div>
+        <div class="gm-bar" style="height:3px;background:var(--border);"></div>
+        <div class="gm-bar-label">8</div>
+      </div>
+      <div class="gm-bar-col">
+        <div style="font-size:9px;color:var(--border);margin-bottom:3px;">—</div>
+        <div class="gm-bar" style="height:3px;background:var(--border);"></div>
+        <div class="gm-bar-label">9</div>
+      </div>
+      <div class="gm-bar-col">
+        <div style="font-size:9px;color:var(--border);margin-bottom:3px;">—</div>
+        <div class="gm-bar" style="height:3px;background:var(--border);"></div>
+        <div class="gm-bar-label">10</div>
+      </div>
+      <div class="gm-bar-col">
+        <div style="font-size:9px;color:var(--border);margin-bottom:3px;">—</div>
+        <div class="gm-bar" style="height:3px;background:var(--border);"></div>
+        <div class="gm-bar-label">11</div>
+      </div>
+      <div class="gm-bar-col">
+        <div style="font-size:9px;color:var(--border);margin-bottom:3px;">—</div>
+        <div class="gm-bar" style="height:3px;background:var(--border);"></div>
+        <div class="gm-bar-label">12</div>
+      </div>
+    </div>
+    <!-- 目標ライン表示 -->
+    <div style="font-size:10px;color:var(--muted);margin-top:6px;">
+      <span style="display:inline-block;width:12px;height:3px;background:var(--accent);border-radius:2px;vertical-align:middle;margin-right:4px;"></span>確定 &nbsp;
+      <span style="display:inline-block;width:12px;height:3px;background:var(--border);border:1px dashed var(--muted);vertical-align:middle;margin-right:4px;margin-left:8px;"></span>見込み
+    </div>
+  </div>
+
+  <!-- ── 健康・運動 ── -->
+  <div class="goal-section" style="margin-bottom:14px;">
+    <div class="goal-section-title">💪 健康・運動</div>
+    <div class="habit-row">
+      <span style="font-size:16px;">🏋️</span>
+      <span class="habit-label">ジム</span>
+      <div class="habit-dots" id="habit-gym">
+        <div class="habit-dot" onclick="toggleHabit('habit-gym',0)" title="月"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-gym',1)" title="火"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-gym',2)" title="水"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-gym',3)" title="木"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-gym',4)" title="金"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-gym',5)" title="土"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-gym',6)" title="日"></div>
+      </div>
+      <span id="habit-gym-count" style="font-size:11px;color:var(--muted);min-width:30px;text-align:right;">0/7</span>
+    </div>
+    <div class="habit-row">
+      <span style="font-size:16px;">🏃</span>
+      <span class="habit-label">皇居ラン</span>
+      <div class="habit-dots" id="habit-run">
+        <div class="habit-dot" onclick="toggleHabit('habit-run',0)" title="月"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-run',1)" title="火"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-run',2)" title="水"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-run',3)" title="木"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-run',4)" title="金"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-run',5)" title="土"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-run',6)" title="日"></div>
+      </div>
+      <span id="habit-run-count" style="font-size:11px;color:var(--muted);min-width:30px;text-align:right;">0/7</span>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-top:4px;">※ 今週の実績。毎週月曜にリセット。</div>
+  </div>
+
+  <!-- ── 学習・スキルアップ ── -->
+  <div class="goal-section" style="margin-bottom:14px;">
+    <div class="goal-section-title">📚 学習・スキルアップ</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:16px;">🤖</span>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;">AI・自動化スキル</div>
+          <div style="font-size:11px;color:var(--muted);">Claude Code・プロンプト設計・MCP活用</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
+          <div style="font-size:10px;color:var(--muted);">今月の学習日</div>
+          <div style="font-size:16px;font-weight:800;color:var(--accent);" id="learn-days-ai">—</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:16px;">📈</span>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;">ビジネス・経営知識</div>
+          <div style="font-size:11px;color:var(--muted);">法人化・税務・マーケティング</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
+          <div style="font-size:10px;color:var(--muted);">今月の学習日</div>
+          <div style="font-size:16px;font-weight:800;color:var(--purple);" id="learn-days-biz">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="habit-row" style="margin-top:12px;margin-bottom:0;">
+      <span style="font-size:16px;">📖</span>
+      <span class="habit-label">今週の学習</span>
+      <div class="habit-dots" id="habit-learn">
+        <div class="habit-dot" onclick="toggleHabit('habit-learn',0)" style="border-radius:6px;" title="月"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-learn',1)" style="border-radius:6px;" title="火"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-learn',2)" style="border-radius:6px;" title="水"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-learn',3)" style="border-radius:6px;" title="木"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-learn',4)" style="border-radius:6px;" title="金"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-learn',5)" style="border-radius:6px;" title="土"></div>
+        <div class="habit-dot" onclick="toggleHabit('habit-learn',6)" style="border-radius:6px;" title="日"></div>
+      </div>
+      <span id="habit-learn-count" style="font-size:11px;color:var(--muted);min-width:30px;text-align:right;">0/7</span>
+    </div>
+  </div>
+
+  <!-- ── 定性的な目標 ── -->
+  <div class="goal-section">
+    <div class="goal-section-title">✍️ 定性的な目標・ビジョン</div>
+    <textarea class="qualitative-area" id="qualitative-goal"
+      placeholder="ここに自由に入力してください。&#10;例：バリ移住を実現する、チームを持つ、など..."
+      oninput="saveQualitative()"></textarea>
+    <div style="font-size:10px;color:var(--muted);margin-top:6px;text-align:right;">自動保存</div>
+  </div>
+
+</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow-sm);">
       <div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">直近月実績（4月）</div>
       <div style="font-size:28px;font-weight:800;color:var(--green);line-height:1.1;">¥526,699</div>
@@ -2072,6 +2302,46 @@ function resetChecks() {
   saveChecks();
 }
 loadChecks();
+
+// ── Habit tracking ──
+function toggleHabit(id, idx) {
+  const dots = document.querySelectorAll(`#${id} .habit-dot`);
+  dots[idx].classList.toggle('done');
+  const count = [...dots].filter(d => d.classList.contains('done')).length;
+  document.getElementById(`${id}-count`).textContent = `${count}/7`;
+  const key = `habit_${id}_${getWeekKey()}`;
+  const state = [...dots].map(d => d.classList.contains('done'));
+  localStorage.setItem(key, JSON.stringify(state));
+}
+
+function getWeekKey() {
+  const d = new Date();
+  const jan1 = new Date(d.getFullYear(), 0, 1);
+  const week = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+  return `${d.getFullYear()}_w${week}`;
+}
+
+function loadHabits() {
+  ['habit-gym', 'habit-run', 'habit-learn'].forEach(id => {
+    const key = `habit_${id}_${getWeekKey()}`;
+    const saved = JSON.parse(localStorage.getItem(key) || 'null');
+    if (!saved) return;
+    const dots = document.querySelectorAll(`#${id} .habit-dot`);
+    saved.forEach((done, i) => { if (done) dots[i].classList.add('done'); });
+    const count = saved.filter(Boolean).length;
+    document.getElementById(`${id}-count`).textContent = `${count}/7`;
+  });
+}
+loadHabits();
+
+// ── Qualitative goals ──
+function saveQualitative() {
+  localStorage.setItem('qualitative_goal', document.getElementById('qualitative-goal').value);
+}
+(function loadQualitative() {
+  const saved = localStorage.getItem('qualitative_goal');
+  if (saved) document.getElementById('qualitative-goal').value = saved;
+})();
 </script>
 </body>
 </html>
