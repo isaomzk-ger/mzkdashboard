@@ -825,6 +825,56 @@
     .link-form-row > *:last-child { grid-column: span 2; }
   }
 
+  /* ── Project accordion ── */
+  .proj-group { border-bottom: 1px solid var(--border); }
+  .proj-group:last-child { border-bottom: none; }
+  .proj-group-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+  }
+  .proj-group-header:hover { background: var(--surface2); border-radius: 8px; }
+  .proj-group-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .proj-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .proj-group-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .proj-chevron {
+    font-size: 18px;
+    line-height: 1;
+    color: var(--muted);
+    transition: transform .2s;
+    display: inline-block;
+  }
+  .proj-group.open .proj-chevron { transform: rotate(90deg); }
+  .proj-group-body {
+    display: none;
+    padding-bottom: 6px;
+  }
+  .proj-group.open .proj-group-body { display: block; }
+  .proj-group-body .task-row { padding-left: 16px; }
+
   /* ── Scrollbar ── */
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
@@ -883,119 +933,120 @@
         <div class="card-badge" id="task-progress">- / - 完了</div>
       </div>
 
-      <div class="task-group">
-        <div class="task-group-label">
-          <span>🔴 高優先</span><span id="g-high-cnt"></span>
+      <!-- ミステリーナイト -->
+      <div class="proj-group" id="pg-mystery">
+        <button class="proj-group-header" onclick="toggleGroup('pg-mystery')">
+          <span class="proj-group-title"><span class="proj-dot" style="background:#8b5cf6"></span>ミステリーナイト</span>
+          <span class="proj-group-meta"><span class="proj-group-cnt" id="cnt-mystery"></span><span class="proj-chevron">›</span></span>
+        </button>
+        <div class="proj-group-body">
+          <a class="task-row" href="https://www.notion.so/35b4b5f36fc681a7b260f469ad8a22d0" target="_blank" data-p="mid">
+            <div class="p-dot p-mid"></div><div class="task-check"></div>
+            <div class="task-name">Claude Code台本自動化</div>
+          </a>
+          <a class="task-row" href="https://www.notion.so/35d4b5f36fc68138b5c7c9a19a6e2c11" target="_blank" data-p="mid">
+            <div class="p-dot p-mid"></div><div class="task-check"></div>
+            <div class="task-name">かつや案件のチャンネル情報をNotionに整備する</div>
+          </a>
+          <a class="task-row" href="https://www.notion.so/35b4b5f36fc68195bb5ccf77669d0753" target="_blank" data-p="low">
+            <div class="p-dot p-low"></div><div class="task-check"></div>
+            <div class="task-name">ナイトウ16サムネ</div>
+          </a>
+          <a class="task-row" href="https://www.notion.so/35b4b5f36fc681aab20adf1ac92df918" target="_blank" data-p="low">
+            <div class="p-dot p-low"></div><div class="task-check"></div>
+            <div class="task-name">納品スプレッド</div>
+          </a>
+          <a class="task-row" href="https://www.notion.so/35c4b5f36fc6817ead8ef601dadfb13b" target="_blank" data-p="low">
+            <div class="p-dot p-low"></div><div class="task-check"></div>
+            <div class="task-name">ナイトウ17サムネ</div>
+          </a>
         </div>
-        <a class="task-row" href="https://www.notion.so/35c4b5f36fc6812bb637d7117603b167" target="_blank" data-p="high">
-          <div class="p-dot p-high"></div>
-          <div class="task-check"></div>
-          <div class="task-name">Xアカウントを作成する</div>
-          <span class="task-tag tag-other">その他</span>
-        </a>
-        <a class="task-row" href="https://www.notion.so/35c4b5f36fc6814b848cec779f5227d1" target="_blank" data-p="high">
-          <div class="p-dot p-high"></div>
-          <div class="task-check"></div>
-          <div class="task-name">Xに実績投稿を書いて投稿する</div>
-          <span class="task-tag tag-other">その他</span>
-        </a>
-        <a class="task-row" href="https://www.notion.so/35d4b5f36fc681aab9f3e382b6a8e80d" target="_blank" data-p="high">
-          <div class="p-dot p-high"></div>
-          <div class="task-check"></div>
-          <div class="task-name">よろず支援拠点に融資相談の予約を入れる</div>
-          <span class="task-tag tag-other">その他</span>
-        </a>
-        <a class="task-row" href="https://www.notion.so/35d4b5f36fc681b9a9c9ddf8930ceeaf" target="_blank" data-p="high">
-          <div class="p-dot p-high"></div>
-          <div class="task-check"></div>
-          <div class="task-name">GビズIDプライムの取得申請</div>
-          <span class="task-tag tag-other">その他</span>
-        </a>
-        <a class="task-row" href="https://www.notion.so/35d4b5f36fc68131b51bda03bb1d80c4" target="_blank" data-p="high">
-          <div class="p-dot p-high"></div>
-          <div class="task-check"></div>
-          <div class="task-name">SECURITY ACTION ★一つ星の自己宣言</div>
-          <span class="task-tag tag-other">その他</span>
-        </a>
       </div>
 
-      <div class="task-group">
-        <div class="task-group-label">
-          <span>🟡 中優先</span><span id="g-mid-cnt"></span>
+      <!-- ダイロクチャンネル -->
+      <div class="proj-group" id="pg-dairoku">
+        <button class="proj-group-header" onclick="toggleGroup('pg-dairoku')">
+          <span class="proj-group-title"><span class="proj-dot" style="background:#f59e0b"></span>ダイロクチャンネル</span>
+          <span class="proj-group-meta"><span class="proj-group-cnt" id="cnt-dairoku"></span><span class="proj-chevron">›</span></span>
+        </button>
+        <div class="proj-group-body">
+          <a class="task-row" href="https://www.notion.so/35b4b5f36fc68108a06cc816ff4e6a84" target="_blank" data-p="low">
+            <div class="p-dot p-low"></div><div class="task-check"></div>
+            <div class="task-name">ダイロク登録促す音声</div>
+          </a>
         </div>
-        <a class="task-row" href="https://www.notion.so/35b4b5f36fc681a7b260f469ad8a22d0" target="_blank" data-p="mid">
-          <div class="p-dot p-mid"></div>
-          <div class="task-check"></div>
-          <div class="task-name">Claude Code台本自動化</div>
-          <span class="task-tag tag-mystery">ミステリーナイト</span>
-        </a>
-        <a class="task-row" href="https://www.notion.so/35d4b5f36fc68138b5c7c9a19a6e2c11" target="_blank" data-p="mid">
-          <div class="p-dot p-mid"></div>
-          <div class="task-check"></div>
-          <div class="task-name">かつや案件のチャンネル情報をNotionに整備する</div>
-          <span class="task-tag tag-mystery">ミステリーナイト</span>
-        </a>
-        <a class="task-row" href="https://www.notion.so/35d4b5f36fc681589fbbe0d0cf767620" target="_blank" data-p="mid">
-          <div class="p-dot p-mid"></div>
-          <div class="task-check"></div>
-          <div class="task-name">事業計画書の仕上げ・提出準備</div>
-          <span class="task-tag tag-other">その他</span>
-        </a>
       </div>
 
-      <div class="task-group">
-        <div class="task-group-label">
-          <span>🟢 低優先</span><span id="g-low-cnt"></span>
+      <!-- ライズファン -->
+      <div class="proj-group" id="pg-risefan">
+        <button class="proj-group-header" onclick="toggleGroup('pg-risefan')">
+          <span class="proj-group-title"><span class="proj-dot" style="background:#10b981"></span>ライズファン</span>
+          <span class="proj-group-meta"><span class="proj-group-cnt" id="cnt-risefan"></span><span class="proj-chevron">›</span></span>
+        </button>
+        <div class="proj-group-body">
+          <a class="task-row" href="https://www.notion.so/35b4b5f36fc681b6ab52fe1e08787eca" target="_blank" data-p="low">
+            <div class="p-dot p-low"></div><div class="task-check"></div>
+            <div class="task-name">台本チェックGPTs</div>
+          </a>
         </div>
-        <a class="task-row" href="https://www.notion.so/35b4b5f36fc68108a06cc816ff4e6a84" target="_blank" data-p="low">
-          <div class="p-dot p-low"></div>
-          <div class="task-check"></div>
-          <div class="task-name">ダイロク登録促す音声</div>
-          <span class="task-tag tag-dairoku">ダイロクチャンネル</span>
-        </a>
-        <a class="task-row" href="https://www.notion.so/35b4b5f36fc681b6ab52fe1e08787eca" target="_blank" data-p="low">
-          <div class="p-dot p-low"></div>
-          <div class="task-check"></div>
-          <div class="task-name">台本チェックGPTs</div>
-          <span class="task-tag tag-risefan">ライズファン</span>
-        </a>
-        <a class="task-row" href="https://www.notion.so/35b4b5f36fc68195bb5ccf77669d0753" target="_blank" data-p="low">
-          <div class="p-dot p-low"></div>
-          <div class="task-check"></div>
-          <div class="task-name">ナイトウ16サムネ</div>
-          <span class="task-tag tag-mystery">ミステリーナイト</span>
-        </a>
-        <a class="task-row" href="https://www.notion.so/35b4b5f36fc681aab20adf1ac92df918" target="_blank" data-p="low">
-          <div class="p-dot p-low"></div>
-          <div class="task-check"></div>
-          <div class="task-name">納品スプレッド</div>
-          <span class="task-tag tag-mystery">ミステリーナイト</span>
-        </a>
-        <a class="task-row" href="https://www.notion.so/35c4b5f36fc6817ead8ef601dadfb13b" target="_blank" data-p="low">
-          <div class="p-dot p-low"></div>
-          <div class="task-check"></div>
-          <div class="task-name">ナイトウ17サムネ</div>
-          <span class="task-tag tag-mystery">ミステリーナイト</span>
-        </a>
-        <a class="task-row" href="https://www.notion.so/35e4b5f36fc68025a2d0cac7735bcb04" target="_blank" data-p="low">
-          <div class="p-dot p-low"></div>
-          <div class="task-check"></div>
-          <div class="task-name">品質管理部チャットボット</div>
-          <span class="task-tag tag-and">and°</span>
-        </a>
-        <a class="task-row" href="https://www.notion.so/3594b5f36fc680f5ab44ebbfe5e746a8" target="_blank" data-p="low">
-          <div class="p-dot p-low"></div>
-          <div class="task-check"></div>
-          <div class="task-name">台本作成自動化Skills</div>
-          <span class="task-tag tag-and">and°</span>
-        </a>
-        <a class="task-row" href="https://www.notion.so/35d4b5f36fc680a2a1aefdd951a2be94" target="_blank" data-p="low">
-          <div class="p-dot p-low"></div>
-          <div class="task-check"></div>
-          <div class="task-name">テンプレート作り方マニュアル</div>
-          <span class="task-tag tag-and">and°</span>
-        </a>
       </div>
+
+      <!-- and° -->
+      <div class="proj-group" id="pg-and">
+        <button class="proj-group-header" onclick="toggleGroup('pg-and')">
+          <span class="proj-group-title"><span class="proj-dot" style="background:#4f6ef7"></span>and°</span>
+          <span class="proj-group-meta"><span class="proj-group-cnt" id="cnt-and"></span><span class="proj-chevron">›</span></span>
+        </button>
+        <div class="proj-group-body">
+          <a class="task-row" href="https://www.notion.so/35e4b5f36fc68025a2d0cac7735bcb04" target="_blank" data-p="low">
+            <div class="p-dot p-low"></div><div class="task-check"></div>
+            <div class="task-name">品質管理部チャットボット</div>
+          </a>
+          <a class="task-row" href="https://www.notion.so/3594b5f36fc680f5ab44ebbfe5e746a8" target="_blank" data-p="low">
+            <div class="p-dot p-low"></div><div class="task-check"></div>
+            <div class="task-name">台本作成自動化Skills</div>
+          </a>
+          <a class="task-row" href="https://www.notion.so/35d4b5f36fc680a2a1aefdd951a2be94" target="_blank" data-p="low">
+            <div class="p-dot p-low"></div><div class="task-check"></div>
+            <div class="task-name">テンプレート作り方マニュアル</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- その他 -->
+      <div class="proj-group" id="pg-other">
+        <button class="proj-group-header" onclick="toggleGroup('pg-other')">
+          <span class="proj-group-title"><span class="proj-dot" style="background:#8b92b5"></span>その他</span>
+          <span class="proj-group-meta"><span class="proj-group-cnt" id="cnt-other"></span><span class="proj-chevron">›</span></span>
+        </button>
+        <div class="proj-group-body">
+          <a class="task-row" href="https://www.notion.so/35c4b5f36fc6812bb637d7117603b167" target="_blank" data-p="high">
+            <div class="p-dot p-high"></div><div class="task-check"></div>
+            <div class="task-name">Xアカウントを作成する</div>
+          </a>
+          <a class="task-row" href="https://www.notion.so/35c4b5f36fc6814b848cec779f5227d1" target="_blank" data-p="high">
+            <div class="p-dot p-high"></div><div class="task-check"></div>
+            <div class="task-name">Xに実績投稿を書いて投稿する</div>
+          </a>
+          <a class="task-row" href="https://www.notion.so/35d4b5f36fc681aab9f3e382b6a8e80d" target="_blank" data-p="high">
+            <div class="p-dot p-high"></div><div class="task-check"></div>
+            <div class="task-name">よろず支援拠点に融資相談の予約を入れる</div>
+          </a>
+          <a class="task-row" href="https://www.notion.so/35d4b5f36fc681b9a9c9ddf8930ceeaf" target="_blank" data-p="high">
+            <div class="p-dot p-high"></div><div class="task-check"></div>
+            <div class="task-name">GビズIDプライムの取得申請</div>
+          </a>
+          <a class="task-row" href="https://www.notion.so/35d4b5f36fc68131b51bda03bb1d80c4" target="_blank" data-p="high">
+            <div class="p-dot p-high"></div><div class="task-check"></div>
+            <div class="task-name">SECURITY ACTION ★一つ星の自己宣言</div>
+          </a>
+          <a class="task-row" href="https://www.notion.so/35d4b5f36fc681589fbbe0d0cf767620" target="_blank" data-p="mid">
+            <div class="p-dot p-mid"></div><div class="task-check"></div>
+            <div class="task-name">事業計画書の仕上げ・提出準備</div>
+          </a>
+        </div>
+      </div>
+
     </div>
 
     <!-- Today's Schedule -->
@@ -1817,24 +1868,43 @@ function highlightToday() {
 }
 highlightToday();
 
+// ── Project accordion ──
+function toggleGroup(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
 // ── Task counter ──
 function countTasks() {
   const rows = document.querySelectorAll('.task-row');
-  let high=0, mid=0, low=0, done=0;
+  let high=0, mid=0, done=0;
   rows.forEach(r => {
     if (r.classList.contains('done')) { done++; return; }
     const p = r.dataset.p;
     if (p==='high') high++;
     else if (p==='mid') mid++;
-    else low++;
   });
   const total = rows.length;
   document.getElementById('task-progress').textContent = `${done} / ${total} 完了`;
   document.getElementById('hstat-high').textContent = `🔴 ${high} 高`;
   document.getElementById('hstat-mid').textContent  = `🟡 ${mid} 中`;
-  document.getElementById('g-high-cnt').textContent = high + '件';
-  document.getElementById('g-mid-cnt').textContent  = mid + '件';
-  document.getElementById('g-low-cnt').textContent  = low + '件';
+
+  // 案件別件数
+  const groups = {
+    mystery: 'cnt-mystery', dairoku: 'cnt-dairoku',
+    risefan: 'cnt-risefan', and: 'cnt-and', other: 'cnt-other'
+  };
+  const pgIds = {
+    mystery: 'pg-mystery', dairoku: 'pg-dairoku',
+    risefan: 'pg-risefan', and: 'pg-and', other: 'pg-other'
+  };
+  Object.entries(pgIds).forEach(([key, pgId]) => {
+    const pg = document.getElementById(pgId);
+    if (!pg) return;
+    const pgRows = pg.querySelectorAll('.task-row');
+    const pgDone = [...pgRows].filter(r => r.classList.contains('done')).length;
+    const el = document.getElementById(groups[key]);
+    if (el) el.textContent = `${pgDone}/${pgRows.length}`;
+  });
 }
 countTasks();
 
