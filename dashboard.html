@@ -1001,7 +1001,7 @@
       <div class="card">
         <div class="card-header">
           <div class="card-title">🗓 今日の予定</div>
-          <div class="card-badge">5月13日（水）</div>
+          <div class="card-badge" id="cal-date-badge">-</div>
         </div>
 
         <div class="cal-event">
@@ -1806,6 +1806,15 @@ function tick() {
   document.getElementById('today-pill').textContent = `${m}月${d}日（${dow}） ${hh}:${mm}`;
 }
 tick(); setInterval(tick, 30000);
+
+// ── Calendar date badge ──
+(function() {
+  const jst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
+  const days = ['日','月','火','水','木','金','土'];
+  const m = jst.getMonth()+1, d = jst.getDate(), dow = days[jst.getDay()];
+  const el = document.getElementById('cal-date-badge');
+  if (el) el.textContent = `${m}月${d}日（${dow}）`;
+})();
 
 // ── Tabs ──
 function switchTab(id, btn) {
