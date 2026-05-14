@@ -712,6 +712,117 @@
     .income-stat-value { font-size: 20px; }
   }
 
+  /* ── Link buttons ── */
+  .link-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity .15s, transform .1s;
+    cursor: pointer;
+  }
+  .link-btn:hover { opacity: .82; transform: translateX(2px); }
+  .link-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .link-yt { background: #fff0f0; color: #c00; border: 1px solid #fcc; }
+  .link-yt .link-icon { background: #ff0000; color: #fff; }
+  .link-doc { background: #f0f4ff; color: #1a4fd6; border: 1px solid #c7d7ff; }
+  .link-doc .link-icon { background: #4285f4; color: #fff; font-size: 10px; }
+  .link-notion { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .link-notion .link-icon { background: #000; color: #fff; font-family: serif; }
+
+  /* ── Link add form ── */
+  .link-add-section {
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-top: 16px;
+  }
+  .link-add-section h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .link-form-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 2fr auto;
+    gap: 10px;
+    align-items: end;
+  }
+  .link-form-row label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 5px;
+  }
+  .link-form-row select,
+  .link-form-row input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    background: var(--surface2);
+    color: var(--text);
+    outline: none;
+  }
+  .link-form-row select:focus,
+  .link-form-row input:focus { border-color: var(--accent); }
+  .btn-add-link {
+    padding: 8px 16px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-add-link:hover { opacity: .85; }
+  .custom-links-area { margin-top: 16px; }
+  .custom-link-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .custom-link-item:last-child { border-bottom: none; }
+  .custom-link-del {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .custom-link-del:hover { color: var(--red); background: var(--red-light); }
+  @media (max-width: 600px) {
+    .link-form-row { grid-template-columns: 1fr 1fr; }
+    .link-form-row > *:last-child { grid-column: span 2; }
+  }
+
   /* ── Scrollbar ── */
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
@@ -746,6 +857,9 @@
     </button>
     <button class="tab-btn" onclick="switchTab('goals', this)">
       <span class="tab-icon">🎯</span>目標
+    </button>
+    <button class="tab-btn" onclick="switchTab('links', this)">
+      <span class="tab-icon">🔗</span>リンク集
     </button>
   </nav>
 
@@ -1516,6 +1630,170 @@
 
 </div>
 
+<!-- ── リンク集 ── -->
+<div class="panel" id="panel-links">
+
+  <!-- かつや案件 -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-header">
+      <div class="card-title">🎬 かつや案件</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+      <!-- ミステリーナイト -->
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;">
+        <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">ミステリーナイト</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <a href="https://studio.youtube.com/channel/UCjTp4d4Cl_MEo2tB7kUGWgA?c=UCjTp4d4Cl_MEo2tB7kUGWgA" target="_blank" class="link-btn link-yt">
+            <span class="link-icon">▶</span>YouTube Studio
+          </a>
+          <a href="https://docs.google.com/document/d/1-rOpAFUypC76jGs8kdhZBlpvI2248_UkE718Ydzo2kE/edit?tab=t.0#heading=h.xmxvdx8yz1lz" target="_blank" class="link-btn link-doc">
+            <span class="link-icon">📄</span>シェア台本
+          </a>
+          <a href="https://docs.google.com/document/d/1CNkHoEMDqTPSuyF2h7_XlSA3pazkf_OnN9fM5TljQHU/edit?tab=t.0#heading=h.anyfgd5q2m2n" target="_blank" class="link-btn link-doc">
+            <span class="link-icon">📄</span>下書き
+          </a>
+        </div>
+      </div>
+
+      <!-- ダイロクチャンネル -->
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;">
+        <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">ダイロクチャンネル</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <a href="https://studio.youtube.com/channel/UC7X9bJu8AbjoKZcSghOmMRw?c=UC7X9bJu8AbjoKZcSghOmMRw" target="_blank" class="link-btn link-yt">
+            <span class="link-icon">▶</span>YouTube Studio
+          </a>
+          <a href="https://docs.google.com/document/d/1p8yYDZNVWycCAo9W-3tR9VBuJxbY6jlyBO-b5JS4hsk/edit?tab=t.mce810hrr72h#heading=h.v3nl1un9ouz4" target="_blank" class="link-btn link-doc">
+            <span class="link-icon">📄</span>シェア台本
+          </a>
+          <a href="https://docs.google.com/document/d/1rAn-DLLULMmL3iu8rcchK-dSwcfdd663REmIVdvB7m0/edit?tab=t.0#heading=h.fzemjng967ul" target="_blank" class="link-btn link-doc">
+            <span class="link-icon">📄</span>シェア台本2
+          </a>
+          <a href="https://docs.google.com/document/d/10_GWgyipDA2V66WDoTm2O4kQOZUAN_pgcFf6FDZty9I/edit?tab=t.0#heading=h.7qgytc5oar5f" target="_blank" class="link-btn link-doc">
+            <span class="link-icon">📄</span>下書き
+          </a>
+          <a href="https://docs.google.com/document/d/1PPT9ZCh2mDlhRyDMZQ5HPR2qVee6EsccLABOByliO64/edit?tab=t.0#heading=h.sf2oetca4dwl" target="_blank" class="link-btn link-doc">
+            <span class="link-icon">📄</span>下書き2
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ライズファン -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-header">
+      <div class="card-title">🪖 ライズファン</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:320px;">
+      <a href="https://studio.youtube.com/channel/UChoEcuXmc7s-vU0YKO-Mn_Q" target="_blank" class="link-btn link-yt">
+        <span class="link-icon">▶</span>YouTube Studio
+      </a>
+      <a href="https://www.notion.so/e9f02576532f4e40a018b39dbe70cf2b" target="_blank" class="link-btn link-notion">
+        <span class="link-icon">N</span>タスク管理
+      </a>
+    </div>
+  </div>
+
+  <!-- and° -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🏢 and°</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+      <!-- 管理系 -->
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;">
+        <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">管理・ログ</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <a href="https://www.notion.so/33c4b5f36fc680d497d7d4486fab4d20" target="_blank" class="link-btn link-notion">
+            <span class="link-icon">N</span>タスク管理（and°）
+          </a>
+          <a href="https://www.notion.so/d7e4a668b4034b4bbb42a59a39a25a4e" target="_blank" class="link-btn link-notion">
+            <span class="link-icon">N</span>Claude作業ログ
+          </a>
+        </div>
+      </div>
+
+      <!-- マニュアル -->
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;">
+        <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">マニュアル一覧</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <a href="https://www.notion.so/33c4b5f36fc680f0b1c3e202451135f2" target="_blank" class="link-btn link-notion">
+            <span class="link-icon">N</span>ディレクターマニュアル
+          </a>
+          <a href="https://www.notion.so/33c4b5f36fc680a28788dced8ecac111" target="_blank" class="link-btn link-notion">
+            <span class="link-icon">N</span>編集マニュアル
+          </a>
+          <a href="https://www.notion.so/33c4b5f36fc68085b440f85d8edb0915" target="_blank" class="link-btn link-notion">
+            <span class="link-icon">N</span>動画品質改善マニュアル
+          </a>
+          <a href="https://www.notion.so/34c4b5f36fc68022aa60ed7826bfaa52" target="_blank" class="link-btn link-notion">
+            <span class="link-icon">N</span>収益停止対策マニュアル
+          </a>
+          <a href="https://www.notion.so/3564b5f36fc680a5ab26e0c796ae7569" target="_blank" class="link-btn link-notion">
+            <span class="link-icon">N</span>ナレーター導入マニュアル
+          </a>
+          <a href="https://www.notion.so/3564b5f36fc680e7b2dac26e8244e7df" target="_blank" class="link-btn link-notion">
+            <span class="link-icon">N</span>顔出し導入マニュアル
+          </a>
+          <a href="https://www.notion.so/3564b5f36fc680c8951bc156c2e1cc7c" target="_blank" class="link-btn link-notion">
+            <span class="link-icon">N</span>ワイプ導入マニュアル
+          </a>
+          <a href="https://www.notion.so/33c4b5f36fc680009951ece4cde6b03c" target="_blank" class="link-btn link-notion">
+            <span class="link-icon">N</span>アニメストーリーマニュアル
+          </a>
+          <a href="https://www.notion.so/3564b5f36fc681cbb3e8e8a37299432a" target="_blank" class="link-btn link-notion">
+            <span class="link-icon">N</span>参考元一致度チェッカー
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- リンク追加フォーム -->
+  <div class="link-add-section">
+    <h3>＋ リンクを追加</h3>
+    <div class="link-form-row">
+      <div>
+        <label>案件・グループ</label>
+        <select id="lf-group">
+          <option value="かつや／ミステリーナイト">かつや／ミステリーナイト</option>
+          <option value="かつや／ダイロクチャンネル">かつや／ダイロクチャンネル</option>
+          <option value="ライズファン">ライズファン</option>
+          <option value="and°">and°</option>
+          <option value="その他">その他</option>
+        </select>
+      </div>
+      <div>
+        <label>種類</label>
+        <select id="lf-type">
+          <option value="yt">YouTube</option>
+          <option value="doc">Google Doc</option>
+          <option value="notion">Notion</option>
+          <option value="other">その他</option>
+        </select>
+      </div>
+      <div>
+        <label>ラベル名</label>
+        <input type="text" id="lf-label" placeholder="例：シェア台本3" />
+      </div>
+      <div>
+        <label>URL</label>
+        <input type="url" id="lf-url" placeholder="https://..." />
+      </div>
+      <div>
+        <button class="btn-add-link" onclick="addCustomLink()">追加</button>
+      </div>
+    </div>
+    <div class="custom-links-area" id="custom-links-area"></div>
+  </div>
+
+</div>
+
 <script>
 // ── Clock ──
 function tick() {
@@ -1584,6 +1862,71 @@ function countTasks() {
   document.getElementById('g-low-cnt').textContent  = low + '件';
 }
 countTasks();
+
+// ── Custom Links (localStorage) ──
+const LINK_KEY = 'mizuki_custom_links';
+const TYPE_CLASS = { yt: 'link-yt', doc: 'link-doc', notion: 'link-notion', other: 'link-notion' };
+const TYPE_ICON  = { yt: '▶', doc: '📄', notion: 'N', other: '🔗' };
+
+function loadCustomLinks() {
+  return JSON.parse(localStorage.getItem(LINK_KEY) || '[]');
+}
+
+function saveCustomLinks(links) {
+  localStorage.setItem(LINK_KEY, JSON.stringify(links));
+}
+
+function renderCustomLinks() {
+  const links = loadCustomLinks();
+  const area = document.getElementById('custom-links-area');
+  if (!links.length) { area.innerHTML = ''; return; }
+
+  const byGroup = {};
+  links.forEach((l, i) => {
+    if (!byGroup[l.group]) byGroup[l.group] = [];
+    byGroup[l.group].push({ ...l, idx: i });
+  });
+
+  area.innerHTML = Object.entries(byGroup).map(([group, items]) => `
+    <div style="margin-top:14px;">
+      <div style="font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">${group}</div>
+      ${items.map(l => `
+        <div class="custom-link-item">
+          <a href="${l.url}" target="_blank" class="link-btn ${TYPE_CLASS[l.type]}" style="flex:1;">
+            <span class="link-icon">${TYPE_ICON[l.type]}</span>${l.label}
+          </a>
+          <button class="custom-link-del" onclick="deleteCustomLink(${l.idx})" title="削除">×</button>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function addCustomLink() {
+  const group = document.getElementById('lf-group').value;
+  const type  = document.getElementById('lf-type').value;
+  const label = document.getElementById('lf-label').value.trim();
+  const url   = document.getElementById('lf-url').value.trim();
+
+  if (!label || !url) { alert('ラベルとURLを入力してください'); return; }
+
+  const links = loadCustomLinks();
+  links.push({ group, type, label, url });
+  saveCustomLinks(links);
+  renderCustomLinks();
+
+  document.getElementById('lf-label').value = '';
+  document.getElementById('lf-url').value = '';
+}
+
+function deleteCustomLink(idx) {
+  const links = loadCustomLinks();
+  links.splice(idx, 1);
+  saveCustomLinks(links);
+  renderCustomLinks();
+}
+
+renderCustomLinks();
 </script>
 </body>
 </html>
