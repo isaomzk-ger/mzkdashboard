@@ -204,11 +204,9 @@ def fetch_calendar_events(token: str, time_min: datetime, time_max: datetime) ->
 def get_events(token: str, now: datetime) -> tuple[list, dict]:
     today_events, week_events = [], {}
 
-    # 今週月曜〜日曜を計算
-    monday = now - timedelta(days=now.weekday())
-    sunday = monday + timedelta(days=6)
-    week_start = monday.replace(hour=0, minute=0, second=0, microsecond=0)
-    week_end   = sunday.replace(hour=23, minute=59, second=59, microsecond=0)
+    # 今日から7日間
+    week_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_end   = (now + timedelta(days=6)).replace(hour=23, minute=59, second=59, microsecond=0)
 
     all_events = fetch_calendar_events(token, week_start, week_end)
 

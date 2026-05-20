@@ -412,29 +412,27 @@
      概況タブ
 ════════════════════════════════════════════ -->
 <div class="panel" id="panel-today">
-  <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start;">
-    <div>
-      <div class="card">
-        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">優先タスク</div>
-        <div id="tasks-high"></div>
-        <div id="tasks-mid"></div>
-        <div id="tasks-low"></div>
-        <div id="tasks-empty" style="display:none;padding:20px;text-align:center;color:var(--muted);font-size:13px;">タスクなし</div>
-      </div>
+  <!-- 上段: タスク + 今日の予定 -->
+  <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start;margin-bottom:16px;">
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">優先タスク</div>
+      <div id="tasks-high"></div>
+      <div id="tasks-mid"></div>
+      <div id="tasks-low"></div>
+      <div id="tasks-empty" style="display:none;padding:20px;text-align:center;color:var(--muted);font-size:13px;">タスクなし</div>
     </div>
-    <div>
-      <div class="card">
-        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">今日の予定</div>
-        <div id="events-today"></div>
-      </div>
-      <div class="card">
-        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">今週のスケジュール</div>
-        <div id="events-week"></div>
-      </div>
-      <div style="text-align:right;margin-top:6px;">
-        <span id="daily-updated" style="font-size:10px;color:var(--muted);"></span>
-      </div>
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">今日の予定</div>
+      <div id="events-today"></div>
     </div>
+  </div>
+  <!-- 下段: 7日間横並びグリッド -->
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">今後7日間</div>
+      <span id="daily-updated" style="font-size:10px;color:var(--muted);"></span>
+    </div>
+    <div id="events-week" style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;min-height:80px;"></div>
   </div>
 </div><!-- /panel-today -->
 
@@ -1444,42 +1442,37 @@ const DAILY_DATA = {
     }
   }
 
-  // 今週のスケジュール
+  // 今後7日間 横並びグリッド
   const weekEl = document.getElementById('events-week');
   if (weekEl) {
     const weekData = DAILY_DATA.week_events || {};
     const DOW = ['日','月','火','水','木','金','土'];
-    // 今週月曜〜日曜を生成
     const today = new Date(DAILY_DATA.today + 'T00:00:00+09:00');
-    const mon = new Date(today); mon.setDate(today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1));
     const days = Array.from({length:7}, (_, i) => {
-      const d = new Date(mon); d.setDate(mon.getDate() + i);
+      const d = new Date(today); d.setDate(today.getDate() + i);
       return d.toISOString().slice(0,10);
     });
-    const hasAny = days.some(d => weekData[d] && weekData[d].length);
-    if (!hasAny) {
-      weekEl.innerHTML = '<div style="padding:12px;text-align:center;color:var(--muted);font-size:12px;">今週の予定なし</div>';
-    } else {
-      weekEl.innerHTML = days.map(dateStr => {
-        const evs = weekData[dateStr] || [];
-        const d = new Date(dateStr + 'T00:00:00+09:00');
-        const label = `${d.getMonth()+1}/${d.getDate()}（${DOW[d.getDay()]}）`;
-        const isToday = dateStr === DAILY_DATA.today;
-        const dayColor = isToday ? 'var(--accent)' : 'var(--muted)';
-        if (!evs.length) return '';
-        return `<div style="margin-bottom:10px;">
-          <div style="font-size:11px;font-weight:700;color:${dayColor};margin-bottom:4px;${isToday?'':'opacity:.8'}">${label}</div>
-          ${evs.map(e => `
-            <div style="display:flex;gap:8px;padding:5px 4px;border-radius:6px;${isToday?'background:var(--surface2);':''} margin-bottom:2px;">
-              <div style="width:3px;border-radius:2px;background:${CAL_COLOR[e.category]||'#8b5cf6'};flex-shrink:0;margin:2px 0;"></div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.title}</div>
-                ${e.allday ? '<div style="font-size:10px;color:var(--muted);">終日</div>' : `<div style="font-size:10px;color:var(--muted);">${e.start}〜${e.end}</div>`}
-              </div>
-            </div>`).join('')}
-        </div>`;
-      }).filter(Boolean).join('');
-    }
+    weekEl.innerHTML = days.map(dateStr => {
+      const evs = weekData[dateStr] || [];
+      const d = new Date(dateStr + 'T00:00:00+09:00');
+      const isToday = dateStr === DAILY_DATA.today;
+      const isSat = d.getDay() === 6, isSun = d.getDay() === 0;
+      const dowColor = isToday ? 'var(--accent)' : isSat ? '#3b82f6' : isSun ? '#ef4444' : 'var(--text)';
+      return `<div style="border:1px solid var(--border);border-radius:10px;padding:8px 6px;background:${isToday?'var(--surface2)':'var(--surface)'};min-height:80px;">
+        <div style="text-align:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">
+          <div style="font-size:10px;color:${dowColor};font-weight:700;">${DOW[d.getDay()]}</div>
+          <div style="font-size:16px;font-weight:700;color:${isToday?'var(--accent)':'var(--text)'};">${d.getDate()}</div>
+        </div>
+        ${evs.length === 0
+          ? ''
+          : evs.map(e => `
+            <div style="border-radius:5px;padding:3px 5px;margin-bottom:3px;background:${CAL_COLOR[e.category]||'#8b5cf6'}18;border-left:2px solid ${CAL_COLOR[e.category]||'#8b5cf6'};">
+              <div style="font-size:10px;font-weight:600;color:${CAL_COLOR[e.category]||'#8b5cf6'};line-height:1.2;">${e.allday?'終日':e.start}</div>
+              <div style="font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3;">${e.title}</div>
+            </div>`).join('')
+        }
+      </div>`;
+    }).join('');
   }
 
   const upEl = document.getElementById('daily-updated');
