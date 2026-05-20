@@ -150,21 +150,14 @@ def get_access_token() -> str:
     return resp.json()["access_token"]
 
 
-def get_events() -> list:
-    try:
-        token = get_access_token()
-    except Exception as e:
-        print(f"[WARN] Google auth failed: {e}", file=sys.stderr)
-        return []
-
-    now = datetime.now(JST)
+def fetch_calendar_events(token: str, time_min: datetime, time_max: datetime) -> list:
     try:
         resp = requests.get(
             "https://www.googleapis.com/calendar/v3/calendars/primary/events",
             headers={"Authorization": f"Bearer {token}"},
             params={
-                "timeMin":      now.replace(hour=0,  minute=0,  second=0,  microsecond=0).isoformat(),
-                "timeMax":      now.replace(hour=23, minute=59, second=59, microsecond=0).isoformat(),
+                "timeMin":      time_min.isoformat(),
+                "timeMax":      time_max.isoformat(),
                 "orderBy":      "startTime",
                 "singleEvents": "true",
                 "timeZone":     "Asia/Tokyo",
@@ -176,26 +169,59 @@ def get_events() -> list:
         print(f"[WARN] Calendar fetch failed: {e}", file=sys.stderr)
         return []
 
-    events, seen_titles = [], set()
+    events = []
     for item in resp.json().get("items", []):
         start = item.get("start", {})
-        if "dateTime" not in start:
-            continue  # 終日イベントはスキップ
         title = (item.get("summary") or "").strip()
-        if not title or title in seen_titles:
+        if not title:
             continue
-        seen_titles.add(title)
-
+        # 終日イベント
+        if "date" in start and "dateTime" not in start:
+            events.append({
+                "date":     start["date"],
+                "start":    "",
+                "end":      "",
+                "title":    title,
+                "category": categorize(title),
+                "allday":   True,
+            })
+            continue
+        if "dateTime" not in start:
+            continue
         start_dt = datetime.fromisoformat(start["dateTime"]).astimezone(JST)
         end_dt   = datetime.fromisoformat(item["end"]["dateTime"]).astimezone(JST)
         events.append({
+            "date":     start_dt.strftime("%Y-%m-%d"),
             "start":    start_dt.strftime("%H:%M"),
             "end":      end_dt.strftime("%H:%M"),
             "title":    title,
             "category": categorize(title),
+            "allday":   False,
         })
-
     return events
+
+
+def get_events(token: str, now: datetime) -> tuple[list, dict]:
+    today_events, week_events = [], {}
+
+    # 今週月曜〜日曜を計算
+    monday = now - timedelta(days=now.weekday())
+    sunday = monday + timedelta(days=6)
+    week_start = monday.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_end   = sunday.replace(hour=23, minute=59, second=59, microsecond=0)
+
+    all_events = fetch_calendar_events(token, week_start, week_end)
+
+    today_str = now.strftime("%Y-%m-%d")
+    for e in all_events:
+        date = e["date"]
+        if date not in week_events:
+            week_events[date] = []
+        week_events[date].append(e)
+        if date == today_str:
+            today_events.append({k: v for k, v in e.items() if k != "date"})
+
+    return today_events, week_events
 
 
 # ── HTML 更新 ───────────────────────────────────────────────────────────────
@@ -229,14 +255,22 @@ def main() -> None:
         print("[ERROR] NOTION_TOKEN is not set", file=sys.stderr)
         sys.exit(1)
 
-    tasks  = get_tasks(token)
-    events = get_events()
     now    = datetime.now(JST)
+    tasks  = get_tasks(token)
+
+    try:
+        gcal_token = get_access_token()
+        today_events, week_events = get_events(gcal_token, now)
+    except Exception as e:
+        print(f"[WARN] Google auth failed: {e}", file=sys.stderr)
+        today_events, week_events = [], {}
 
     data = {
-        "updated": now.strftime("%Y-%m-%dT%H:%M:%S+09:00"),
-        "tasks":   tasks,
-        "events":  events,
+        "updated":      now.strftime("%Y-%m-%dT%H:%M:%S+09:00"),
+        "today":        now.strftime("%Y-%m-%d"),
+        "tasks":        tasks,
+        "events":       today_events,
+        "week_events":  week_events,
     }
 
     update_html(data)
@@ -244,9 +278,10 @@ def main() -> None:
     high = sum(1 for t in tasks if t["priority"] == "high")
     mid  = sum(1 for t in tasks if t["priority"] == "mid")
     low  = sum(1 for t in tasks if t["priority"] == "low")
+    total_ev = sum(len(v) for v in week_events.values())
     print(
         f"✅ {now.strftime('%Y-%m-%d %H:%M JST')} "
-        f"tasks={len(tasks)} (🔴{high} 🟡{mid} 🟢{low})  events={len(events)}"
+        f"tasks={len(tasks)} (🔴{high} 🟡{mid} 🟢{low})  events_today={len(today_events)} events_week={total_ev}"
     )
 
 
