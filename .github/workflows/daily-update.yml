@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: pip install requests pytest -q
 
-      # ── Step 1: Pre-flight check ─────────────────────────────────────────
+      # ── Pre-flight check ─────────────────────────────────────────────────
       - name: Pre-flight — Notion
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
@@ -53,8 +53,6 @@ jobs:
         run: |
           python - <<'EOF'
           import os, requests, sys
-          from datetime import datetime, timezone, timedelta
-          JST = timezone(timedelta(hours=9))
           try:
               r = requests.post(
                   "https://oauth2.googleapis.com/token",
@@ -67,20 +65,6 @@ jobs:
                   timeout=10,
               )
               r.raise_for_status()
-              access_token = r.json()["access_token"]
-              now = datetime.now(JST)
-              r2 = requests.get(
-                  "https://www.googleapis.com/calendar/v3/calendars/primary/events",
-                  headers={"Authorization": f"Bearer {access_token}"},
-                  params={
-                      "timeMin": now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat(),
-                      "timeMax": now.replace(hour=23, minute=59, second=59, microsecond=0).isoformat(),
-                      "maxResults": 1,
-                      "singleEvents": "true",
-                  },
-                  timeout=10,
-              )
-              r2.raise_for_status()
               print("✅ Google Calendar OK")
           except Exception as e:
               print(f"❌ Calendar pre-flight failed: {e}", file=sys.stderr)
@@ -88,107 +72,57 @@ jobs:
               sys.exit(1)
           EOF
 
-      # ── Step 2: Update + Test with reflection loop (最大 3 回) ────────────
-      - name: Update dashboard (attempt 1)
-        id: update1
-        continue-on-error: true
-        env:
-          NOTION_TOKEN:         ${{ secrets.NOTION_TOKEN }}
-          GOOGLE_CLIENT_ID:     ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
-        run: python scripts/update_daily.py
-
-      - name: Run tests (attempt 1)
-        id: test1
-        if: steps.update1.outcome == 'success'
-        continue-on-error: true
-        run: |
-          python -m pytest tests/dashboard_invariants.py -v 2>&1 | tee /tmp/test_output.txt
-          exit ${PIPESTATUS[0]}
-
-      # ── リフレクション 1回目 ─────────────────────────────────────────────
-      - name: Diagnose & fix (attempt 2)
-        id: fix2
-        if: steps.update1.outcome == 'failure' || steps.test1.outcome == 'failure'
-        continue-on-error: true
+      # ── Update + Test (リトライループ、最大 10 回 × 5 分間隔) ─────────────
+      - name: Update dashboard with retry loop
+        id: update_loop
         env:
           NOTION_TOKEN:         ${{ secrets.NOTION_TOKEN }}
           GOOGLE_CLIENT_ID:     ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
         run: |
-          echo "=== 失敗ログ ===" && cat /tmp/test_output.txt 2>/dev/null || true
-          echo "=== 根本原因を特定して再実行 ==="
-          # Notion API コール数が 15 を超えていないか確認
-          python - <<'EOF'
-          import re, pathlib, sys
-          log = pathlib.Path("/tmp/test_output.txt").read_text() if pathlib.Path("/tmp/test_output.txt").exists() else ""
-          issues = []
-          if "NOTION_TOKEN" in log or "401" in log:
-              issues.append("Notion 認証エラー — NOTION_TOKEN シークレットを確認")
-          if "Calendar" in log or "403" in log:
-              issues.append("Calendar API エラー — GCP で API が有効か確認")
-          if "今日" in log or "today" in log.lower():
-              issues.append("日付不一致 — タイムゾーン処理を確認")
-          if "empty" in log.lower() or "tasks が空" in log:
-              issues.append("タスク空 — Notion DB ID と フィルター条件を確認")
-          if issues:
-              print("診断結果:", file=sys.stderr)
-              for i in issues: print(f"  ⚠️  {i}", file=sys.stderr)
-          else:
-              print("原因特定できず — update_daily.py を再実行します", file=sys.stderr)
-          EOF
-          python scripts/update_daily.py
+          MAX_ATTEMPTS=10
+          WAIT_SEC=300   # 5 分
 
-      - name: Run tests (attempt 2)
-        id: test2
-        if: steps.fix2.outcome == 'success'
-        continue-on-error: true
-        run: |
-          python -m pytest tests/dashboard_invariants.py -v 2>&1 | tee /tmp/test_output.txt
-          exit ${PIPESTATUS[0]}
+          for attempt in $(seq 1 $MAX_ATTEMPTS); do
+            echo ""
+            echo "════════════════════════════════════"
+            echo "  Attempt $attempt / $MAX_ATTEMPTS"
+            echo "════════════════════════════════════"
 
-      # ── リフレクション 2回目 ─────────────────────────────────────────────
-      - name: Diagnose & fix (attempt 3)
-        id: fix3
-        if: steps.fix2.outcome == 'failure' || steps.test2.outcome == 'failure'
-        continue-on-error: true
-        env:
-          NOTION_TOKEN:         ${{ secrets.NOTION_TOKEN }}
-          GOOGLE_CLIENT_ID:     ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
-        run: |
-          echo "=== 2回目失敗 — 最終診断 ===" && cat /tmp/test_output.txt 2>/dev/null || true
-          python scripts/update_daily.py
+            if python scripts/update_daily.py \
+               && python -m pytest tests/dashboard_invariants.py -v 2>&1 | tee /tmp/test_output.txt \
+               && [ "${PIPESTATUS[0]}" -eq 0 ]; then
+              echo "✅ Succeeded on attempt $attempt"
+              echo "succeeded=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
 
-      - name: Run tests (attempt 3 — final)
-        id: test3
-        if: steps.fix3.outcome == 'success'
-        continue-on-error: true
-        run: |
-          python -m pytest tests/dashboard_invariants.py -v 2>&1 | tee /tmp/test_output.txt
-          exit ${PIPESTATUS[0]}
+            echo "❌ Attempt $attempt failed."
+            cat /tmp/test_output.txt 2>/dev/null || true
 
-      # ── 最終失敗時: Notion にタスクを作成 ────────────────────────────────
+            if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
+              echo "⏳ Waiting ${WAIT_SEC}s before next attempt…"
+              sleep "$WAIT_SEC"
+            fi
+          done
+
+          echo "❌ All $MAX_ATTEMPTS attempts failed."
+          echo "succeeded=false" >> "$GITHUB_OUTPUT"
+          exit 1
+
+      # ── 全失敗時: Notion にタスクを作成 ─────────────────────────────────
       - name: Notify failure to Notion
-        if: |
-          (steps.update1.outcome == 'failure' && steps.fix2.outcome == 'failure' && steps.fix3.outcome == 'failure') ||
-          (steps.test1.outcome  == 'failure' && steps.test2.outcome  == 'failure' && steps.test3.outcome  == 'failure')
+        if: steps.update_loop.outcome == 'failure'
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         run: |
           FAILURE_LOG=$(cat /tmp/test_output.txt 2>/dev/null || echo "テストログなし — update_daily.py 自体が失敗")
           python scripts/notify_failure.py "$FAILURE_LOG"
-          exit 1
 
-      # ── 成功時: commit & push ──────────────────────────────────────────────
+      # ── 成功時: commit & push ─────────────────────────────────────────────
       - name: Commit and push
-        if: |
-          steps.update1.outcome == 'success' && steps.test1.outcome == 'success' ||
-          steps.fix2.outcome    == 'success' && steps.test2.outcome == 'success' ||
-          steps.fix3.outcome    == 'success' && steps.test3.outcome == 'success'
+        if: steps.update_loop.outcome == 'success'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
