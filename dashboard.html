@@ -6,13 +6,9 @@
 <title>Furusaworks</title>
 <script>
   (function(){
-    const KEY = 'dashboard_auth';
     const PASS = '8788';
-    if(sessionStorage.getItem(KEY) !== '1'){
-      const input = prompt('パスワードを入力してください');
-      if(input !== PASS){ document.documentElement.innerHTML = ''; location.href = 'about:blank'; return; }
-      sessionStorage.setItem(KEY, '1');
-    }
+    const input = prompt('パスワードを入力してください');
+    if(input !== PASS){ document.documentElement.innerHTML = ''; location.href = 'about:blank'; }
   })();
 </script>
 <style>
