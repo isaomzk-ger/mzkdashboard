@@ -392,13 +392,9 @@
 <header class="header">
   <div class="header-brand">
     <div class="logo">Furus<span>aworks</span></div>
-    <div class="date-pill" id="today-pill">-</div>
   </div>
 
   <nav class="tabs">
-    <button class="tab-btn" id="tab-today" onclick="switchTab('today', this)">
-      <span class="tab-icon">📋</span>今日
-    </button>
     <button class="tab-btn" id="tab-overview" onclick="switchTab('overview', this)">
       <span class="tab-icon">📊</span>概況
     </button>
@@ -422,31 +418,6 @@
 <!-- ══════════════════════════════════════════
      概況タブ
 ════════════════════════════════════════════ -->
-<div class="panel" id="panel-today">
-  <!-- 上段: タスク + 今日の予定 -->
-  <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start;margin-bottom:16px;">
-    <div class="card">
-      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">優先タスク</div>
-      <div id="tasks-high"></div>
-      <div id="tasks-mid"></div>
-      <div id="tasks-low"></div>
-      <div id="tasks-empty" style="display:none;padding:20px;text-align:center;color:var(--muted);font-size:13px;">タスクなし</div>
-    </div>
-    <div class="card">
-      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">今日の予定</div>
-      <div id="events-today"></div>
-    </div>
-  </div>
-  <!-- 下段: 7日間横並びグリッド -->
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">今後7日間</div>
-      <span id="daily-updated" style="font-size:10px;color:var(--muted);"></span>
-    </div>
-    <div id="events-week" style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;min-height:80px;"></div>
-  </div>
-</div><!-- /panel-today -->
-
 <div class="panel" id="panel-overview">
 
   <!-- KPIストリップ -->
@@ -690,7 +661,7 @@
       <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--purple-light);border:1px solid #ddd6fe;border-radius:10px;">
         <span style="font-size:16px;">🏛</span>
         <div style="flex:1;font-size:13px;font-weight:700;">法人化（Furusaworks合同会社）</div>
-        <span style="font-size:11px;font-weight:800;color:var(--purple);">2026/9/28</span>
+        <span style="font-size:11px;font-weight:800;color:var(--purple);">2027/9</span>
       </div>
     </div>
   </div>
@@ -839,91 +810,208 @@
   <!-- 進捗サマリー -->
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
     <div style="background:var(--green-light);border:1px solid #bbf7d0;border-radius:14px;padding:16px;text-align:center;">
-      <div style="font-size:10px;font-weight:800;color:var(--green);text-transform:uppercase;margin-bottom:6px;">現在の月収</div>
-      <div style="font-size:26px;font-weight:800;color:var(--green);">¥692,499</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:4px;">4月実績 目標70万の99%</div>
+      <div style="font-size:10px;font-weight:800;color:var(--green);text-transform:uppercase;margin-bottom:6px;">現在の方針</div>
+      <div style="font-size:16px;font-weight:800;color:var(--green);line-height:1.3;">個人事業主<br>節税最大化</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;">2026年は法人化しない</div>
     </div>
     <div style="background:var(--accent-light);border:1px solid #c7d7ff;border-radius:14px;padding:16px;text-align:center;">
-      <div style="font-size:10px;font-weight:800;color:var(--accent);text-transform:uppercase;margin-bottom:6px;">法人化目安収入</div>
-      <div style="font-size:26px;font-weight:800;color:var(--accent);">¥800万+</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:4px;">年収ベース・税メリット目安</div>
+      <div style="font-size:10px;font-weight:800;color:var(--accent);text-transform:uppercase;margin-bottom:6px;">法人化最終判断</div>
+      <div style="font-size:22px;font-weight:800;color:var(--accent);">2027年3月</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">確定申告完了後に決定</div>
     </div>
     <div style="background:var(--purple-light);border:1px solid #ddd6fe;border-radius:14px;padding:16px;text-align:center;">
-      <div style="font-size:10px;font-weight:800;color:var(--purple);text-transform:uppercase;margin-bottom:6px;">設立日（確定）</div>
-      <div style="font-size:22px;font-weight:800;color:var(--purple);">2026年9/28</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:4px;">法人設立登記申請日＝法人成立日</div>
+      <div style="font-size:10px;font-weight:800;color:var(--purple);text-transform:uppercase;margin-bottom:6px;">設立予定</div>
+      <div style="font-size:22px;font-weight:800;color:var(--purple);">2027年9月</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">Furusaworks合同会社</div>
     </div>
   </div>
 
-  <!-- フェーズ別ロードマップ -->
-  <div style="display:flex;flex-direction:column;gap:16px;">
+  <!-- 確定事項バッジ -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-header">
+      <div class="card-title">✅ 確定済み設計</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      <span style="background:var(--green-light);color:#166534;border:1px solid #bbf7d0;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;">合同会社</span>
+      <span style="background:var(--green-light);color:#166534;border:1px solid #bbf7d0;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;">Furusaworks合同会社</span>
+      <span style="background:var(--green-light);color:#166534;border:1px solid #bbf7d0;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;">所在地：自宅</span>
+      <span style="background:var(--green-light);color:#166534;border:1px solid #bbf7d0;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;">資本金100万以上</span>
+      <span style="background:var(--green-light);color:#166534;border:1px solid #bbf7d0;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;">事業年度 10/1〜9/30</span>
+      <span style="background:var(--green-light);color:#166534;border:1px solid #bbf7d0;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;">会計：freee 法人プラン</span>
+      <span style="background:var(--green-light);color:#166534;border:1px solid #bbf7d0;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;">税理士なし（freee＋AI）</span>
+    </div>
+  </div>
 
-    <!-- Phase 1 -->
+  <!-- 法人化トリガー監視 -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-header">
+      <div class="card-title">🚨 法人化トリガー監視</div>
+      <div class="card-badge" style="background:var(--yellow-light);color:#92400e;">月次チェック</div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">以下のいずれかに該当したら即再相談</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border-radius:8px;border-left:3px solid var(--yellow);">
+        <span style="font-size:15px;">⚡</span>
+        <div style="flex:1;font-size:13px;">月収 <b>75万超が2ヶ月連続</b></div>
+        <span style="font-size:11px;font-weight:700;color:#92400e;">準備開始サイン</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border-radius:8px;border-left:3px solid var(--accent);">
+        <span style="font-size:15px;">📈</span>
+        <div style="flex:1;font-size:13px;">年売上 <b>800万が見えてきた</b></div>
+        <span style="font-size:11px;font-weight:700;color:var(--accent);">設立日確定タイミング</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border-radius:8px;border-left:3px solid var(--accent);">
+        <span style="font-size:15px;">🎯</span>
+        <div style="flex:1;font-size:13px;">年売上 <b>900万超えそう</b></div>
+        <span style="font-size:11px;font-weight:700;color:var(--accent);">翌年からの法人受け確定</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--red-light);border-radius:8px;border-left:3px solid var(--red);">
+        <span style="font-size:15px;">🚀</span>
+        <div style="flex:1;font-size:13px;">月収 <b>83万超えた月が出た</b></div>
+        <span style="font-size:11px;font-weight:700;color:var(--red);">急いで動く</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border-radius:8px;border-left:3px solid var(--purple);">
+        <span style="font-size:15px;">🤝</span>
+        <div style="flex:1;font-size:13px;"><b>クライアントが4社以上</b></div>
+        <span style="font-size:11px;font-weight:700;color:var(--purple);">売上安定＝現実味UP</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--red-light);border-radius:8px;border-left:3px solid var(--red);">
+        <span style="font-size:15px;">⚠️</span>
+        <div style="flex:1;font-size:13px;">売上 <b>1000万超えそう</b>（消費税課税）</div>
+        <span style="font-size:11px;font-weight:700;color:var(--red);">免税リセットの最後のチャンス</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2026年 節税進捗 -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-header">
+      <div class="card-title">💰 2026年 節税進捗</div>
+      <div class="card-badge">経費目標 ¥1,350,000</div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+        <span style="color:var(--muted);">今年の経費着地（手動更新）</span>
+        <span id="tax-pct" style="font-weight:700;color:var(--accent);">— %</span>
+      </div>
+      <div style="height:8px;background:var(--border);border-radius:8px;margin-bottom:6px;">
+        <div id="tax-bar" style="height:8px;width:0%;background:var(--accent);border-radius:8px;transition:width .4s;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);">
+        <span>確定経費：<b id="tax-spent" style="color:var(--text);">未入力</b></span>
+        <span>残り：<b id="tax-remain" style="color:var(--text);">—</b></span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <input id="tax-input" type="number" placeholder="今年の経費合計（円）" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--surface2);" oninput="updateTaxProgress()">
+    </div>
+    <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">節税手段（優先順）</div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>設備投資（PC周辺・カメラ・音響 / 10万未満一括）</span></label>
+      <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>ツール年払い切り替え（Notion・Adobe・AIツール等）</span></label>
+      <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>外注費の前倒し（年内納品・支払い完了が条件）</span></label>
+      <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>東南アジア視察・市場調査旅行（事業目的で設計）</span></label>
+      <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>青色65万控除に切り替え（e-Tax環境整備）</span></label>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--muted);padding:8px 10px;background:var(--surface2);border-radius:8px;">
+      🎯 <b>着地見込み</b>：売上600万・経費200万・青色65万 → 事業所得335万<br>
+      節税目標：税・社保 約98万 → <b>約62万に削減（▲36万）</b>。そのための追加経費：約135万
+    </div>
+  </div>
+
+  <!-- ロードマップ -->
+  <div style="display:flex;flex-direction:column;gap:14px;">
+
+    <!-- 2026年：今年やること -->
     <div class="card">
       <div class="card-header">
-        <div class="card-title"><span style="background:var(--green);color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;margin-right:8px;">Phase 1</span>財務基盤・行政手続き</div>
-        <div class="card-badge" style="background:var(--green-light);color:var(--green);">進行中 〜2026年6月</div>
+        <div class="card-title"><span style="background:var(--green);color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;margin-right:8px;">2026年</span>個人事業のまま節税最大化</div>
+        <div class="card-badge" style="background:var(--green-light);color:var(--green);">進行中</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <label class="acct-check done-check"><input type="checkbox" checked disabled> <span style="text-decoration:line-through;color:var(--muted);">月収50万達成（目標①）</span> <span style="margin-left:auto;font-size:10px;color:var(--green);font-weight:700;">✓ 達成</span></label>
-        <label class="acct-check done-check"><input type="checkbox" checked disabled> <span style="text-decoration:line-through;color:var(--muted);">よろず支援拠点 融資相談 予約</span> <span style="margin-left:auto;font-size:10px;color:var(--green);font-weight:700;">✓ 完了</span></label>
-        <label class="acct-check done-check"><input type="checkbox" checked disabled> <span style="text-decoration:line-through;color:var(--muted);">事業計画書 作成</span> <span style="margin-left:auto;font-size:10px;color:var(--green);font-weight:700;">✓ 完了</span></label>
-        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>よろず支援拠点 融資相談（相談実施・申請）</span></label>
-        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>月収70万達成（目標②）</span></label>
-        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span style="color:var(--muted);">GビズIDプライム・SECURITY ACTION（補助金申請時）</span></label>
+        <label class="acct-check done-check"><input type="checkbox" checked disabled> <span style="text-decoration:line-through;color:var(--muted);">法人化を2027年に延期決定</span> <span style="margin-left:auto;font-size:10px;color:var(--green);font-weight:700;">✓ 確定</span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>節税経費 135万 着地させる</span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>青色65万控除に切り替え（e-Tax環境整備） <span style="font-size:10px;color:var(--yellow);font-weight:700;">→ 年内</span></span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>経費着地確認（11月末）→ 不足なら12月に駆け込み投資</span></label>
       </div>
     </div>
 
-    <!-- Phase 2 -->
+    <!-- 2027年3月：判断 -->
     <div class="card">
       <div class="card-header">
-        <div class="card-title"><span style="background:var(--accent);color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;margin-right:8px;">Phase 2</span>法人設立準備</div>
-        <div class="card-badge" style="background:var(--accent-light);color:var(--accent);">2026年7月〜8月中旬</div>
+        <div class="card-title"><span style="background:var(--accent);color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;margin-right:8px;">2027年3月</span>確定申告 → 法人化最終判断</div>
+        <div class="card-badge" style="background:var(--accent-light);color:var(--accent);">10ヶ月後</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <label class="acct-check done-check"><input type="checkbox" checked disabled> <span style="text-decoration:line-through;color:var(--muted);">会社形態の決定</span> <span style="margin-left:auto;font-size:10px;color:var(--green);font-weight:700;">✓ 合同会社</span></label>
-        <label class="acct-check done-check"><input type="checkbox" checked disabled> <span style="text-decoration:line-through;color:var(--muted);">会社名・事業目的・所在地の決定</span> <span style="margin-left:auto;font-size:10px;color:var(--green);font-weight:700;">✓ Furusaworks合同会社・自宅</span></label>
-        <label class="acct-check done-check"><input type="checkbox" checked disabled> <span style="text-decoration:line-through;color:var(--muted);">資本金の決定</span> <span style="margin-left:auto;font-size:10px;color:var(--green);font-weight:700;">✓ 50万円（自己資金）</span></label>
-        <label class="acct-check done-check"><input type="checkbox" checked disabled> <span style="text-decoration:line-through;color:var(--muted);">定款の作成</span> <span style="margin-left:auto;font-size:10px;color:var(--green);font-weight:700;">✓ 草案完成・docx出力済み</span></label>
-        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>資本金50万円を口座に用意</span></label>
-        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>法人用印鑑の発注（7月上旬までに）</span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>2026年分の確定申告完了（e-Tax）</span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>年収・節税効果を確認 → 法人化GOかどうかを判断</span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>法人名義賃貸の審査条件確認（所得500万証明）</span></label>
       </div>
     </div>
 
-    <!-- Phase 3 -->
+    <!-- 2027年4〜8月：準備 -->
     <div class="card">
       <div class="card-header">
-        <div class="card-title"><span style="background:var(--yellow);color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;margin-right:8px;">Phase 3</span>設立登記・行政手続き</div>
-        <div class="card-badge" style="background:var(--yellow-light);color:#92400e;">2026年8月下旬〜9月28日</div>
+        <div class="card-title"><span style="background:var(--yellow);color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;margin-right:8px;">2027年4〜8月</span>法人設立準備</div>
+        <div class="card-badge" style="background:var(--yellow-light);color:#92400e;">GO判断後</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>定款認証（公証役場）<span style="margin-left:8px;font-size:10px;color:var(--yellow);font-weight:700;">→ 9月上旬までに完了</span></span></label>
-        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>法人設立登記申請（法務局）<span style="margin-left:8px;font-size:10px;color:var(--red);font-weight:700;">★ 9月28日</span></span></label>
+        <label class="acct-check done-check"><input type="checkbox" checked disabled> <span style="text-decoration:line-through;color:var(--muted);">会社形態：合同会社に確定</span> <span style="margin-left:auto;font-size:10px;color:var(--green);font-weight:700;">✓ 確定</span></label>
+        <label class="acct-check done-check"><input type="checkbox" checked disabled> <span style="text-decoration:line-through;color:var(--muted);">会社名：Furusaworks合同会社に確定</span> <span style="margin-left:auto;font-size:10px;color:var(--green);font-weight:700;">✓ 確定</span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>資本金100万以上を口座に準備</span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>定款の最終化・法人用印鑑発注</span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>社宅物件の探し始め（法人名義で月10万目安）</span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>家族従業員（配偶者・親）への説明・同意</span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>旅費規程の草案作成</span></label>
+      </div>
+    </div>
+
+    <!-- 2027年9月：設立 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span style="background:var(--purple);color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;margin-right:8px;">2027年9月</span>設立登記・運営開始</div>
+        <div class="card-badge" style="background:var(--purple-light);color:var(--purple);">ゴール</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>法人設立登記申請（法務局）<span style="margin-left:8px;font-size:10px;color:var(--red);font-weight:700;">★ 2027年9月</span></span></label>
         <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>税務署・都道府県・市区町村への届出</span></label>
-        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>社会保険・労働保険の手続き</span></label>
         <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>法人口座の開設</span></label>
-      </div>
-    </div>
-
-    <!-- Phase 4 -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title"><span style="background:var(--purple);color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;margin-right:8px;">Phase 4</span>事業移行・運営体制構築</div>
-        <div class="card-badge" style="background:var(--purple-light);color:var(--purple);">2026年10月〜</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>取引先（and°・かつや・ライズファン）への通知・契約変更</span></label>
         <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>freee 法人プラン導入・初期設定</span></label>
-        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>役員報酬の設定</span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>役員報酬の設定（月8〜10万）</span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>旅費規程の運用開始（月15〜20万・非課税）</span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>家族従業員（配偶者・親 各月8万）の雇用手続き</span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>法人名義で社宅契約</span></label>
+        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>取引先への通知・契約変更</span></label>
         <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>個人事業の廃業届提出</span></label>
-        <label class="acct-check"><input type="checkbox" onchange="saveChecks()"> <span>法人としての初回確定申告準備</span></label>
       </div>
     </div>
 
   </div>
 
-  <div style="margin-top:16px;padding:14px;background:var(--surface2);border-radius:12px;font-size:12px;color:var(--muted);line-height:1.8;">
-    💡 <b>法人化のタイミング目安</b>：年収800万円を超えると所得税率が高くなるため、法人化による節税メリットが出やすい。役員報酬で所得分散・社会保険料の経費計上が可能になる。
+  <!-- 節税シミュレーション -->
+  <div style="margin-top:16px;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;font-size:12px;line-height:1.9;">
+    <div style="font-weight:800;font-size:13px;margin-bottom:8px;">📊 法人化後の節税シミュレーション（売上700万想定）</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div>
+        <div style="color:var(--muted);font-size:11px;font-weight:700;margin-bottom:4px;">個人手元（旅費含む）</div>
+        <div style="font-size:18px;font-weight:800;color:var(--accent);">260万</div>
+      </div>
+      <div>
+        <div style="color:var(--muted);font-size:11px;font-weight:700;margin-bottom:4px;">家族手元（配偶者＋親）</div>
+        <div style="font-size:18px;font-weight:800;color:var(--accent);">192万</div>
+      </div>
+      <div>
+        <div style="color:var(--muted);font-size:11px;font-weight:700;margin-bottom:4px;">法人留保</div>
+        <div style="font-size:18px;font-weight:800;color:var(--accent);">98万</div>
+      </div>
+      <div>
+        <div style="color:var(--muted);font-size:11px;font-weight:700;margin-bottom:4px;">税・社保合計</div>
+        <div style="font-size:18px;font-weight:800;color:var(--green);">約55万 <span style="font-size:12px;color:var(--green);">（個人のまま約130万）</span></div>
+      </div>
+    </div>
+    <div style="margin-top:10px;padding:8px;background:var(--green-light);border-radius:8px;font-weight:700;color:#166534;">
+      🎉 法人化で年間 <b>▲75万</b> の節税効果（世帯＋法人留保 合計549万）
+    </div>
   </div>
 
 </div><!-- /panel-incorporation -->
@@ -1503,8 +1591,28 @@ function switchTab(id, btn) {
 }
 (function initTab() {
   const hash = location.hash.slice(1);
-  const valid = ['today','overview','goals','incorporation','acctlinks'];
-  switchTab(valid.includes(hash) ? hash : 'today', null);
+  const valid = ['overview','goals','incorporation','acctlinks'];
+  switchTab(valid.includes(hash) ? hash : 'overview', null);
+})();
+
+// ── 節税進捗バー ──
+function updateTaxProgress() {
+  const target = 1350000;
+  const val = parseInt(document.getElementById('tax-input').value) || 0;
+  const pct = Math.min(Math.round(val / target * 100), 100);
+  const remain = Math.max(target - val, 0);
+  document.getElementById('tax-bar').style.width = pct + '%';
+  document.getElementById('tax-pct').textContent = pct + ' %';
+  document.getElementById('tax-spent').textContent = val ? '¥' + val.toLocaleString() : '未入力';
+  document.getElementById('tax-remain').textContent = remain ? '¥' + remain.toLocaleString() : '達成！';
+  localStorage.setItem('tax_spent', val);
+}
+(function loadTaxProgress() {
+  const saved = localStorage.getItem('tax_spent');
+  if (saved) {
+    document.getElementById('tax-input').value = saved;
+    updateTaxProgress();
+  }
 })();
 
 // ── Custom Links (localStorage) ──
