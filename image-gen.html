@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台本→画像生成ツール</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root { --bg:#0f1115; --panel:#1a1d24; --line:#2a2f3a; --txt:#e6e8eb; --sub:#9aa0aa; --accent:#4f8cff; --accent2:#2ecc71; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,"Hiragino Kaku Gothic ProN",sans-serif; background:var(--bg); color:var(--txt); line-height:1.6; }
+  header { padding:16px 20px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:12px; }
+  header h1 { font-size:16px; margin:0; }
+  .wrap { max-width:1000px; margin:0 auto; padding:20px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:18px; }
+  .panel h2 { font-size:14px; margin:0 0 12px; color:var(--sub); font-weight:600; letter-spacing:.02em; }
+  label { display:block; font-size:12px; color:var(--sub); margin:10px 0 4px; }
+  input[type=text], input[type=password], textarea, select {
+    width:100%; background:#11141a; border:1px solid var(--line); color:var(--txt);
+    border-radius:8px; padding:10px; font-size:13px; font-family:inherit;
+  }
+  textarea { resize:vertical; }
+  .row { display:flex; gap:12px; flex-wrap:wrap; }
+  .row > div { flex:1; min-width:160px; }
+  button { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:11px 18px; font-size:13px; font-weight:600; cursor:pointer; }
+  button:hover { filter:brightness(1.1); }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  button.ghost { background:transparent; border:1px solid var(--line); color:var(--txt); }
+  button.green { background:var(--accent2); }
+  .scene { border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:12px; }
+  .scene-head { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .scene-num { font-size:12px; color:var(--accent); font-weight:700; }
+  .scene-txt { font-size:12px; color:var(--sub); margin-bottom:6px; }
+  .scene img { width:100%; border-radius:8px; margin-top:8px; display:block; }
+  .status { font-size:12px; color:var(--sub); margin-left:auto; }
+  .toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px; }
+  .hint { font-size:11px; color:var(--sub); margin-top:4px; }
+  .badge { font-size:11px; padding:2px 8px; border-radius:20px; background:#11141a; border:1px solid var(--line); color:var(--sub); }
+  a { color:var(--accent); }
+  details summary { cursor:pointer; font-size:13px; color:var(--sub); }
+  .gen-spin { display:inline-block; width:12px; height:12px; border:2px solid var(--line); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎬 台本 → 画像生成ツール</h1>
+  <span class="badge">and° ディレクター用</span>
+</header>
+
+<div class="wrap">
+
+  <!-- 設定 -->
+  <div class="panel">
+    <h2>① 設定（最初に1回だけ）</h2>
+    <label>Gemini APIキー　<span class="hint">aistudio.google.com で無料発行・カード不要</span></label>
+    <input type="password" id="apiKey" placeholder="AIza... で始まるキーを貼り付け">
+    <div class="row">
+      <div>
+        <label>画像生成モデル</label>
+        <select id="imageModel">
+          <option value="imagen-4.0-fast-generate-001">Imagen 4 Fast（$0.02/枚・$300無料枠）</option>
+          <option value="gemini-2.5-flash-image">NanoBanana（Gemini Image・高品質）</option>
+          <option value="imagen-4.0-generate-001">Imagen 4（高品質）</option>
+          <option value="pollinations">Pollinations（無料・現在停止中）</option>
+        </select>
+      </div>
+      <div>
+        <label>台本解析モデル</label>
+        <select id="textModel">
+          <option value="gemini-2.5-flash">Gemini 2.5 Flash（速い・無料）</option>
+          <option value="gemini-2.5-pro">Gemini 2.5 Pro（高精度）</option>
+        </select>
+      </div>
+      <div>
+        <label>アスペクト比</label>
+        <select id="aspect">
+          <option value="16:9">16:9（横・動画）</option>
+          <option value="9:16">9:16（縦・ショート）</option>
+          <option value="1:1">1:1（正方形）</option>
+        </select>
+      </div>
+    </div>
+    <p class="hint">※ キーとチャンネル設定はこのブラウザ内だけに保存されます（サーバー送信なし）。</p>
+  </div>
+
+  <!-- チャンネル/キャラ -->
+  <div class="panel">
+    <h2>② チャンネル・キャラ設定（任意）</h2>
+    <label>チャンネル名 / ジャンル</label>
+    <input type="text" id="channelName" placeholder="例：ダイロク（都市伝説・歴史解説）">
+    <label>画風・テイスト</label>
+    <input type="text" id="artStyle" placeholder="例：シネマティック、リアル寄り、彩度低め、夜のトーン">
+    <label>キャラクター設定（テキスト）</label>
+    <textarea id="charDesc" rows="2" placeholder="例：黒髪ショートの30代女性、白衣、知的な雰囲気。毎シーン同一人物として描く。"></textarea>
+    <label>キャラ参照画像（任意・固定したい時にアップ）</label>
+    <input type="file" id="charImg" accept="image/*">
+    <p class="hint" id="charImgInfo"></p>
+  </div>
+
+  <!-- 台本 -->
+  <div class="panel">
+    <h2>③ 台本</h2>
+    <label>台本テキストを貼り付け</label>
+    <textarea id="script" rows="8" placeholder="ここに台本をペースト..."></textarea>
+    <div class="row" style="margin-top:12px; align-items:flex-end;">
+      <div style="flex:0;">
+        <label>分割シーン数の目安</label>
+        <input type="text" id="sceneCount" value="35" style="width:90px;">
+      </div>
+      <div style="flex:0;">
+        <button id="analyzeBtn">シーン分割＆プロンプト生成 →</button>
+      </div>
+      <div class="status" id="analyzeStatus"></div>
+    </div>
+  </div>
+
+  <!-- シーン一覧 -->
+  <div class="panel" id="scenesPanel" style="display:none;">
+    <h2>④ プロンプト確認・編集 → 生成</h2>
+    <div class="toolbar">
+      <button id="genAllBtn" class="green">全シーン画像生成 ▶</button>
+      <button id="zipBtn" class="ghost" disabled>ZIP一括ダウンロード</button>
+      <button id="addSceneBtn" class="ghost">＋シーン追加</button>
+      <span class="status" id="genStatus"></span>
+    </div>
+    <div id="scenes"></div>
+  </div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const API = "https://generativelanguage.googleapis.com/v1beta/models";
+
+// ---- 設定の保存/復元 ----
+const FIELDS = ["apiKey","imageModel","textModel","aspect","channelName","artStyle","charDesc","sceneCount"];
+FIELDS.forEach(f => {
+  const el = $(f); if (!el) return;
+  const v = localStorage.getItem("igt_"+f);
+  if (v !== null) el.value = v;
+  el.addEventListener("input", () => localStorage.setItem("igt_"+f, el.value));
+});
+
+// キャラ参照画像
+let charImgBase64 = localStorage.getItem("igt_charImgB64") || "";
+let charImgMime = localStorage.getItem("igt_charImgMime") || "";
+if (charImgBase64) $("charImgInfo").textContent = "保存済みの参照画像を使用中（再アップで差し替え）";
+$("charImg").addEventListener("change", e => {
+  const file = e.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    charImgBase64 = r.result.split(",")[1];
+    charImgMime = file.type;
+    localStorage.setItem("igt_charImgB64", charImgBase64);
+    localStorage.setItem("igt_charImgMime", charImgMime);
+    $("charImgInfo").textContent = "参照画像をセットしました：" + file.name;
+  };
+  r.readAsDataURL(file);
+});
+
+// ---- シーン状態 ----
+let scenes = []; // {prompt, img(base64|null)}
+
+function styleSuffix() {
+  const parts = [];
+  if ($("artStyle").value) parts.push($("artStyle").value);
+  if ($("charDesc").value) parts.push("登場人物: " + $("charDesc").value);
+  return parts.length ? "（共通スタイル: " + parts.join(" / ") + "）" : "";
+}
+
+// ---- ① 台本解析 ----
+$("analyzeBtn").addEventListener("click", async () => {
+  const key = $("apiKey").value.trim();
+  if (!key) return alert("APIキーを入力してください");
+  if (!$("script").value.trim()) return alert("台本を貼り付けてください");
+  $("analyzeBtn").disabled = true;
+  $("analyzeStatus").innerHTML = '<span class="gen-spin"></span> 解析中...';
+
+  const sys = `あなたは動画制作のアートディレクターです。以下の台本を約${$("sceneCount").value}個のシーンに分割し、各シーンに最適な画像生成プロンプトを作ってください。
+プロンプトは英語で、情景・構図・ライティング・雰囲気を具体的に。一貫した世界観を保つこと。
+チャンネル: ${$("channelName").value || "（指定なし）"}
+画風: ${$("artStyle").value || "（指定なし）"}
+登場人物: ${$("charDesc").value || "（指定なし）"}
+必ず次のJSON形式のみで返答: {"scenes":[{"caption":"日本語の短い説明","prompt":"英語の画像プロンプト"}]}`;
+
+  try {
+    const res = await fetch(`${API}/${$("textModel").value}:generateContent?key=${key}`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        contents:[{parts:[{text: sys + "\n\n=== 台本 ===\n" + $("script").value}]}],
+        generationConfig:{ responseMimeType:"application/json" }
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const txt = data.candidates[0].content.parts[0].text;
+    const parsed = JSON.parse(txt);
+    scenes = parsed.scenes.map(s => ({ caption:s.caption||"", prompt:s.prompt||"", img:null }));
+    renderScenes();
+    $("scenesPanel").style.display = "block";
+    $("analyzeStatus").textContent = scenes.length + "シーン生成しました";
+  } catch (e) {
+    $("analyzeStatus").textContent = "エラー: " + e.message;
+  } finally {
+    $("analyzeBtn").disabled = false;
+  }
+});
+
+// ---- シーン描画 ----
+function renderScenes() {
+  const c = $("scenes"); c.innerHTML = "";
+  scenes.forEach((s, i) => {
+    const div = document.createElement("div");
+    div.className = "scene";
+    div.innerHTML = `
+      <div class="scene-head">
+        <span class="scene-num">#${i+1}</span>
+        <input type="text" value="${(s.caption||"").replace(/"/g,'&quot;')}" data-cap="${i}" placeholder="シーン説明">
+        <button class="ghost" data-gen="${i}" style="padding:6px 12px;">生成</button>
+        <button class="ghost" data-del="${i}" style="padding:6px 10px;">×</button>
+      </div>
+      <textarea rows="2" data-prompt="${i}" placeholder="英語プロンプト">${s.prompt||""}</textarea>
+      <div data-imgwrap="${i}">${s.img ? `<img src="data:image/png;base64,${s.img}">` : ""}</div>
+    `;
+    c.appendChild(div);
+  });
+  c.querySelectorAll("[data-prompt]").forEach(t => t.addEventListener("input", e => scenes[e.target.dataset.prompt].prompt = e.target.value));
+  c.querySelectorAll("[data-cap]").forEach(t => t.addEventListener("input", e => scenes[e.target.dataset.cap].caption = e.target.value));
+  c.querySelectorAll("[data-gen]").forEach(b => b.addEventListener("click", e => genOne(+e.target.dataset.gen)));
+  c.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", e => { scenes.splice(+e.target.dataset.del,1); renderScenes(); }));
+}
+
+// ---- 画像生成（1枚） ----
+const ASPECT_WH = { "16:9":[1280,720], "9:16":[720,1280], "1:1":[1024,1024] };
+
+async function genOne(i) {
+  const model = $("imageModel").value;
+  const key = $("apiKey").value.trim();
+  if (model !== "pollinations" && !key) return alert("APIキーを入力してください");
+  const prompt = scenes[i].prompt + " " + styleSuffix() + ` aspect ratio ${$("aspect").value}`;
+  const wrap = document.querySelector(`[data-imgwrap="${i}"]`);
+  if (wrap) wrap.innerHTML = '<span class="gen-spin"></span> 生成中...';
+
+  try {
+    let b64;
+    if (model === "pollinations") {
+      // Pollinations（完全無料・キー不要）
+      const [w,h] = ASPECT_WH[$("aspect").value] || [1024,1024];
+      const seed = Math.floor(Math.random()*1e6);
+      const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${w}&height=${h}&seed=${seed}&nologo=true`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const blob = await res.blob();
+      b64 = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result.split(",")[1]); fr.readAsDataURL(blob); });
+    } else if (model.startsWith("imagen")) {
+      // Imagen :predict エンドポイント
+      const res = await fetch(`${API}/${model}:predict?key=${key}`, {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ instances:[{prompt}], parameters:{ sampleCount:1, aspectRatio:$("aspect").value } })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      b64 = data.predictions[0].bytesBase64Encoded;
+    } else {
+      // NanoBanana（Gemini Image）:generateContent
+      const parts = [{text: prompt}];
+      if (charImgBase64) parts.push({ inlineData:{ mimeType:charImgMime, data:charImgBase64 } });
+      const res = await fetch(`${API}/${model}:generateContent?key=${key}`, {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ contents:[{parts}] })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      const imgPart = data.candidates[0].content.parts.find(p => p.inlineData);
+      if (!imgPart) throw new Error("画像が返りませんでした（モデル名や無料枠を確認）");
+      b64 = imgPart.inlineData.data;
+    }
+    scenes[i].img = b64;
+    if (wrap) wrap.innerHTML = `<img src="data:image/png;base64,${b64}">`;
+  } catch (e) {
+    if (wrap) wrap.innerHTML = `<span style="color:#ff6b6b;font-size:12px;">エラー: ${e.message}</span>`;
+  }
+}
+
+// ---- 全生成 ----
+$("genAllBtn").addEventListener("click", async () => {
+  $("genAllBtn").disabled = true;
+  for (let i = 0; i < scenes.length; i++) {
+    $("genStatus").textContent = `生成中 ${i+1}/${scenes.length}...`;
+    await genOne(i);
+  }
+  $("genStatus").textContent = "完了 ✅";
+  $("genAllBtn").disabled = false;
+  $("zipBtn").disabled = false;
+});
+
+// ---- シーン追加 ----
+$("addSceneBtn").addEventListener("click", () => { scenes.push({caption:"",prompt:"",img:null}); renderScenes(); });
+
+// ---- ZIP ----
+$("zipBtn").addEventListener("click", async () => {
+  const zip = new JSZip();
+  let n = 0;
+  scenes.forEach((s, i) => {
+    if (s.img) { zip.file(`scene_${String(i+1).padStart(3,"0")}.png`, s.img, {base64:true}); n++; }
+  });
+  if (!n) return alert("生成済みの画像がありません");
+  const blob = await zip.generateAsync({type:"blob"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `images_${new Date().toISOString().slice(0,10)}.zip`;
+  a.click();
+});
+</script>
+</body>
+</html>
