@@ -3,6 +3,8 @@
 経営者・従業員向け Claude 導入 動画講座の e ラーニング基盤（土台）。
 コンテンツ（講座・動画）は別担当が登録する前提で、プラットフォーム側を構築している。
 
+本番URL: https://mzkdashboard.vercel.app
+
 ## 技術スタック
 
 - Next.js 16 (App Router) + TypeScript
