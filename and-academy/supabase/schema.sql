@@ -55,6 +55,14 @@ create table if not exists lesson_progress (
   unique (user_id, lesson_id)
 );
 
+-- 許可リスト（招待制。ここに登録されたメールだけがログイン/登録できる）
+create table if not exists allowed_emails (
+  email text primary key,
+  role text not null default 'member' check (role in ('admin', 'member')),
+  org_id uuid references organizations on delete set null,
+  created_at timestamptz not null default now()
+);
+
 create index if not exists idx_lessons_course on lessons (course_id);
 create index if not exists idx_progress_user on lesson_progress (user_id);
 create index if not exists idx_profiles_org on profiles (org_id);
@@ -67,9 +75,21 @@ returns trigger
 language plpgsql
 security definer set search_path = public
 as $$
+declare
+  a public.allowed_emails%rowtype;
 begin
-  insert into public.profiles (id, full_name)
-  values (new.id, new.raw_user_meta_data ->> 'full_name');
+  -- 許可リストにないメールは登録を拒否（auth.users への挿入ごとロールバック）
+  select * into a from public.allowed_emails
+  where lower(email) = lower(new.email);
+
+  if not found then
+    raise exception 'not_allowed: % は招待されていません', new.email;
+  end if;
+
+  -- role / org は許可リストから付与（本人は変更できない）
+  insert into public.profiles (id, full_name, role, org_id)
+  values (new.id, new.raw_user_meta_data ->> 'full_name', a.role, a.org_id);
+
   return new;
 end;
 $$;
@@ -87,6 +107,7 @@ alter table profiles enable row level security;
 alter table courses enable row level security;
 alter table lessons enable row level security;
 alter table lesson_progress enable row level security;
+alter table allowed_emails enable row level security;
 
 -- 自分が admin かどうかを返すヘルパー（RLS の再帰を避けるため security definer）
 create or replace function public.is_admin()
@@ -116,8 +137,9 @@ create policy "profiles_select_own" on profiles
   for select using (id = auth.uid());
 create policy "profiles_select_org_admin" on profiles
   for select using (public.is_admin() and id in (select public.same_org_user_ids()));
-create policy "profiles_update_own" on profiles
-  for update using (id = auth.uid());
+-- allowed_emails: 管理者のみ閲覧・管理可
+create policy "allowed_admin_all" on allowed_emails
+  for all using (public.is_admin()) with check (public.is_admin());
 
 -- organizations: 自分の所属組織を読める
 create policy "orgs_select_own" on organizations
