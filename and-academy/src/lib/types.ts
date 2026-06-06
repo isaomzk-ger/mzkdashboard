@@ -1,6 +1,6 @@
 // ドメイン型（Supabase のテーブルに対応）
 
-export type Role = "admin" | "member";
+export type Role = "admin" | "manager" | "member";
 export type Audience = "executive" | "employee";
 
 export interface Organization {
@@ -12,6 +12,7 @@ export interface Organization {
 export interface Profile {
   id: string;
   org_id: string | null;
+  email: string | null;
   full_name: string | null;
   role: Role;
   created_at: string;
@@ -47,4 +48,21 @@ export interface LessonProgress {
   completed_at: string | null;
   last_position_seconds: number;
   updated_at: string;
+}
+
+export interface CourseDeadline {
+  id: string;
+  org_id: string;
+  course_id: string;
+  due_date: string;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrganizationCourse {
+  org_id: string;
+  course_id: string;
+  assigned_by: string | null;
+  created_at: string;
 }

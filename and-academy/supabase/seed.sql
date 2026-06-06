@@ -23,3 +23,14 @@ insert into lessons (course_id, title, description, video_url, duration_seconds,
   ('22222222-2222-2222-2222-222222222222', '最初のプロンプト', '基本的な質問の仕方', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 420, 2),
   ('22222222-2222-2222-2222-222222222222', '業務での活用例', 'メール・要約・調査', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 540, 3)
 on conflict do nothing;
+
+-- 既存組織へサンプル講座を割り当て
+insert into organization_courses (org_id, course_id)
+select o.id, c.id
+from organizations o
+cross join courses c
+where c.id in (
+  '11111111-1111-1111-1111-111111111111',
+  '22222222-2222-2222-2222-222222222222'
+)
+on conflict (org_id, course_id) do nothing;

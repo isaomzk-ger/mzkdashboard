@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { toEmbedUrl } from "@/lib/video";
 import { computeUnlocked } from "@/lib/progress";
 import CompleteButton from "@/components/CompleteButton";
+import VideoPlayer from "@/components/VideoPlayer";
 import type { Lesson, LessonProgress } from "@/lib/types";
 
 export default async function LearnPage({
@@ -29,22 +29,23 @@ export default async function LearnPage({
   // 同じ講座のレッスンと進捗を取得し、視聴順序の解放状態を判定する
   const { data: courseLessons } = await supabase
     .from("lessons")
-    .select("id")
+    .select("id, title")
     .eq("course_id", typedLesson.course_id)
     .order("sort_order");
 
   const { data: allProgress } = await supabase
     .from("lesson_progress")
-    .select("lesson_id, completed")
-    .eq("user_id", user?.id ?? "")
-    .eq("completed", true);
+    .select("lesson_id, completed, last_position_seconds")
+    .eq("user_id", user?.id ?? "");
 
   const orderedIds =
     (courseLessons as Pick<Lesson, "id">[] | null)?.map((l) => l.id) ?? [];
   const completedIds = new Set(
-    (allProgress as Pick<LessonProgress, "lesson_id">[] | null)?.map(
-      (p) => p.lesson_id,
-    ),
+    (
+      allProgress as Pick<LessonProgress, "lesson_id" | "completed">[] | null
+    )
+      ?.filter((p) => p.completed)
+      .map((p) => p.lesson_id),
   );
   const unlockedIds = computeUnlocked(orderedIds, completedIds);
 
@@ -74,8 +75,18 @@ export default async function LearnPage({
     currentIndex >= 0 && currentIndex < orderedIds.length - 1
       ? orderedIds[currentIndex + 1]
       : null;
-
-  const embedUrl = toEmbedUrl(typedLesson.video_url);
+  const nextLesson = (
+    courseLessons as Pick<Lesson, "id" | "title">[] | null
+  )?.find((lesson) => lesson.id === nextLessonId);
+  const currentProgress = (
+    allProgress as Pick<
+      LessonProgress,
+      "lesson_id" | "completed" | "last_position_seconds"
+    >[] | null
+  )?.find((item) => item.lesson_id === lessonId);
+  const initialPosition = isCompleted
+    ? 0
+    : (currentProgress?.last_position_seconds ?? 0);
 
   return (
     <div>
@@ -87,14 +98,19 @@ export default async function LearnPage({
       </Link>
 
       <h1 className="mt-2 text-2xl font-bold">{typedLesson.title}</h1>
+      {nextLesson && (
+        <p className="mt-1 text-sm text-slate-500">
+          次: {nextLesson.title}
+        </p>
+      )}
 
       <div className="mt-4 aspect-video w-full overflow-hidden rounded-xl bg-black">
-        {embedUrl ? (
-          <iframe
-            src={embedUrl}
-            className="h-full w-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
+        {typedLesson.video_url ? (
+          <VideoPlayer
+            lessonId={typedLesson.id}
+            videoUrl={typedLesson.video_url}
+            initialPosition={initialPosition}
+            watermarkText={user?.email ?? "受講者"}
           />
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-slate-400">
@@ -117,7 +133,7 @@ export default async function LearnPage({
             href={`/learn/${nextLessonId}`}
             className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-brand-50"
           >
-            次のレッスンへ →
+            次のレッスンへ
           </Link>
         )}
       </div>

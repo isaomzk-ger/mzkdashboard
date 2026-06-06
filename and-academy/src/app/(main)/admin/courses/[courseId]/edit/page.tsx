@@ -154,10 +154,15 @@ function LessonFields({
       />
       <input
         name="video_url"
-        placeholder="動画URL（YouTube / Vimeo など）"
+        type="url"
+        placeholder="動画URL（YouTube / Vimeo）"
         defaultValue={lesson?.video_url ?? ""}
         className="input"
       />
+      <p className="text-xs text-slate-500">
+        Vimeoは埋め込み可能ドメインを mzkdashboard.vercel.app
+        に制限してください。
+      </p>
       <textarea
         name="description"
         rows={2}

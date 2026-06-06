@@ -22,16 +22,32 @@ export async function toggleLessonComplete(
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  await supabase.from("lesson_progress").upsert(
-    {
+  const now = new Date().toISOString();
+  const { data: existing } = await supabase
+    .from("lesson_progress")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("lesson_id", lessonId)
+    .maybeSingle();
+
+  if (existing) {
+    await supabase
+      .from("lesson_progress")
+      .update({
+        completed,
+        completed_at: completed ? now : null,
+        updated_at: now,
+      })
+      .eq("id", existing.id);
+  } else {
+    await supabase.from("lesson_progress").insert({
       user_id: user.id,
       lesson_id: lessonId,
       completed,
-      completed_at: completed ? new Date().toISOString() : null,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "user_id,lesson_id" },
-  );
+      completed_at: completed ? now : null,
+      updated_at: now,
+    });
+  }
 
   revalidatePath("/courses");
   revalidatePath(`/learn/${lessonId}`);

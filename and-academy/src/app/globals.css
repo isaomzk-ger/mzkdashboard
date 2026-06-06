@@ -25,6 +25,49 @@ body {
   color: var(--foreground);
 }
 
+@keyframes watermark-travel {
+  0%,
+  20% {
+    left: 4%;
+    top: 7%;
+  }
+  25%,
+  45% {
+    left: 64%;
+    top: 12%;
+  }
+  50%,
+  70% {
+    left: 58%;
+    top: 82%;
+  }
+  75%,
+  95% {
+    left: 7%;
+    top: 78%;
+  }
+  100% {
+    left: 4%;
+    top: 7%;
+  }
+}
+
+.video-watermark {
+  animation: watermark-travel 36s steps(1, end) infinite;
+  max-width: 32%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .video-watermark {
+    animation: none;
+    left: 4%;
+    top: 7%;
+  }
+}
+
 @layer components {
   .input {
     @apply w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm;
