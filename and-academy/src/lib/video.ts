@@ -7,6 +7,10 @@ export type VideoSource =
   | { provider: "direct"; url: string }
   | { provider: "unknown"; url: string };
 
+function isHost(hostname: string, domain: string): boolean {
+  return hostname === domain || hostname.endsWith(`.${domain}`);
+}
+
 export function getVideoSource(url: string | null): VideoSource | null {
   if (!url) return null;
 
@@ -14,8 +18,8 @@ export function getVideoSource(url: string | null): VideoSource | null {
     const parsed = new URL(url);
 
     if (
-      parsed.hostname.includes("youtube.com") ||
-      parsed.hostname.includes("youtube-nocookie.com")
+      isHost(parsed.hostname, "youtube.com") ||
+      isHost(parsed.hostname, "youtube-nocookie.com")
     ) {
       const pathParts = parsed.pathname.split("/").filter(Boolean);
       const id =
@@ -26,10 +30,10 @@ export function getVideoSource(url: string | null): VideoSource | null {
       if (id) return { provider: "youtube", id };
     }
     if (parsed.hostname === "youtu.be") {
-      const id = parsed.pathname.slice(1);
+      const id = parsed.pathname.split("/").filter(Boolean)[0];
       if (id) return { provider: "youtube", id };
     }
-    if (parsed.hostname.includes("vimeo.com")) {
+    if (isHost(parsed.hostname, "vimeo.com")) {
       const parts = parsed.pathname.split("/").filter(Boolean);
       const id =
         parts[0] === "video" ? parts[1] : parts[0];

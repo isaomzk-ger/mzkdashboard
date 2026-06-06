@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { getVideoSource } from "@/lib/video";
 
 interface YouTubePlayer {
@@ -24,7 +24,7 @@ declare global {
         options: {
           videoId: string;
           host: string;
-          playerVars: Record<string, number>;
+          playerVars: Record<string, number | string>;
           events: {
             onStateChange: (event: { data: number }) => void;
           };
@@ -103,7 +103,7 @@ export default function VideoPlayer({
   const directVideoRef = useRef<HTMLVideoElement>(null);
   const lastSentRef = useRef(initialPosition);
   const lastSentAtRef = useRef(0);
-  const source = getVideoSource(videoUrl);
+  const source = useMemo(() => getVideoSource(videoUrl), [videoUrl]);
 
   const savePosition = useCallback(
     (seconds: number, force = false) => {
@@ -140,6 +140,7 @@ export default function VideoPlayer({
         videoId: source.id,
         host: "https://www.youtube-nocookie.com",
         playerVars: {
+          origin: window.location.origin,
           start: Math.max(0, Math.floor(initialPosition)),
           playsinline: 1,
           rel: 0,

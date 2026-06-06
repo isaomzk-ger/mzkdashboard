@@ -152,16 +152,21 @@ function LessonFields({
         defaultValue={lesson?.title ?? ""}
         className="input"
       />
-      <input
-        name="video_url"
-        type="url"
-        placeholder="動画URL（YouTube / Vimeo）"
-        defaultValue={lesson?.video_url ?? ""}
-        className="input"
-      />
+      <label className="block">
+        <span className="mb-1 block text-xs text-slate-500">
+          YouTube限定公開URL
+        </span>
+        <input
+          name="video_url"
+          type="url"
+          placeholder="https://youtu.be/..."
+          defaultValue={lesson?.video_url ?? ""}
+          className="input"
+        />
+      </label>
       <p className="text-xs text-slate-500">
-        Vimeoは埋め込み可能ドメインを and-academy-jp.vercel.app
-        に制限してください。
+        YouTube Studioで「限定公開」と「埋め込みを許可」を設定してください。
+        非公開動画は埋め込み再生できません。
       </p>
       <textarea
         name="description"
