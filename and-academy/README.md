@@ -3,7 +3,7 @@
 経営者・従業員向け Claude 導入 動画講座の e ラーニング基盤（土台）。
 コンテンツ（講座・動画）は別担当が登録する前提で、プラットフォーム側を構築している。
 
-本番URL: https://mzkdashboard.vercel.app （Next.js / Vercel）
+本番URL: https://and-academy-jp.vercel.app （Next.js / Vercel）
 
 ## 技術スタック
 
@@ -70,7 +70,7 @@ npm run dev
 ## 動画の保護設定
 
 - YouTubeの限定公開はURLを知る人が共有できるため、強い転載対策には向かない
-- Vimeoは埋め込み先を `mzkdashboard.vercel.app` のみに設定する
+- Vimeoは埋め込み先を `and-academy-jp.vercel.app` のみに設定する
 - Vimeo側のダウンロード許可をオフにする
 - アプリ上では受講者メール入りの移動ウォーターマークを動画へ重ねる
 - 直接MP4 URLは既定で拒否する。例外時のみ

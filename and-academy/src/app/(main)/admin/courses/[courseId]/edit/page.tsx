@@ -160,7 +160,7 @@ function LessonFields({
         className="input"
       />
       <p className="text-xs text-slate-500">
-        Vimeoは埋め込み可能ドメインを mzkdashboard.vercel.app
+        Vimeoは埋め込み可能ドメインを and-academy-jp.vercel.app
         に制限してください。
       </p>
       <textarea
