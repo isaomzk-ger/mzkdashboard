@@ -206,11 +206,17 @@ as $$
   where p.org_id = (select org_id from public.profiles where id = auth.uid());
 $$;
 
--- profiles: 自分は読める。admin は同組織を読める
+-- profiles: 自分は読める。運営 admin は全組織、manager は自組織を読める
 create policy "profiles_select_own" on profiles
   for select using (id = auth.uid());
 create policy "profiles_select_org_manager" on profiles
-  for select using (public.can_manage_org() and id in (select public.same_org_user_ids()));
+  for select using (
+    public.is_admin()
+    or (
+      public.can_manage_org()
+      and id in (select public.same_org_user_ids())
+    )
+  );
 -- allowed_emails: 管理者のみ閲覧・管理可
 create policy "allowed_admin_all" on allowed_emails
   for all using (public.is_admin()) with check (public.is_admin());
@@ -243,26 +249,37 @@ create policy "courses_admin_all" on courses
 create policy "lessons_admin_all" on lessons
   for all using (public.is_admin()) with check (public.is_admin());
 
--- lesson_progress: 自分の進捗は読み書き可。admin は同組織の進捗を閲覧可
+-- lesson_progress: 自分の進捗は読み書き可。運営 admin は全組織、manager は自組織を閲覧可
 create policy "progress_rw_own" on lesson_progress
   for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 create policy "progress_select_org_manager" on lesson_progress
   for select using (
-    public.can_manage_org() and user_id in (select public.same_org_user_ids())
+    public.is_admin()
+    or (
+      public.can_manage_org()
+      and user_id in (select public.same_org_user_ids())
+    )
   );
 
--- course_deadlines: 自組織は閲覧可。admin / manager は自組織分を管理可
+-- course_deadlines: 運営 admin は全組織、manager は自組織分を管理可
 create policy "deadlines_select_own_org" on course_deadlines
   for select using (
-    org_id = (select org_id from public.profiles where id = auth.uid())
+    public.is_admin()
+    or org_id = (select org_id from public.profiles where id = auth.uid())
   );
 create policy "deadlines_manage_own_org" on course_deadlines
   for all using (
-    public.can_manage_org()
-    and org_id = (select org_id from public.profiles where id = auth.uid())
+    public.is_admin()
+    or (
+      public.can_manage_org()
+      and org_id = (select org_id from public.profiles where id = auth.uid())
+    )
   ) with check (
-    public.can_manage_org()
-    and org_id = (select org_id from public.profiles where id = auth.uid())
+    public.is_admin()
+    or (
+      public.can_manage_org()
+      and org_id = (select org_id from public.profiles where id = auth.uid())
+    )
   );
 
 alter table course_deadlines

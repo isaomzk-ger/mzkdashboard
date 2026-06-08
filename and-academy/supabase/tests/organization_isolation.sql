@@ -179,6 +179,18 @@ insert into public.lesson_progress (
     now()
   );
 
+insert into public.course_deadlines (org_id, course_id, due_date) values
+  (
+    'a0000000-0000-0000-0000-000000000001',
+    'a0000000-0000-0000-0000-000000000100',
+    '2030-01-01'
+  ),
+  (
+    'b0000000-0000-0000-0000-000000000001',
+    'b0000000-0000-0000-0000-000000000100',
+    '2030-01-02'
+  );
+
 set local role authenticated;
 select set_config(
   'request.jwt.claim.sub',
@@ -260,6 +272,13 @@ begin
     raise exception 'Manager A progress isolation failed';
   end if;
 
+  if exists (
+    select 1 from public.course_deadlines
+    where org_id = 'b0000000-0000-0000-0000-000000000001'
+  ) then
+    raise exception 'Manager A deadline isolation failed';
+  end if;
+
   begin
     perform public.set_organization_courses(
       'a0000000-0000-0000-0000-000000000001',
@@ -288,6 +307,9 @@ do $$
 begin
   if (select count(*) from public.courses where title like 'RLS Course%') <> 2
      or (select count(*) from public.organizations where name like 'RLS Test%') <> 2
+     or (select count(*) from public.profiles where email like 'rls-%') <> 4
+     or (select count(*) from public.lesson_progress) <> 2
+     or (select count(*) from public.course_deadlines) <> 2
      then
     raise exception 'Admin cross-organization access failed';
   end if;

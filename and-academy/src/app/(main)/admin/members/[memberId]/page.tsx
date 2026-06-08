@@ -8,6 +8,8 @@ import type {
   CourseDeadline,
   Lesson,
   LessonProgress,
+  Organization,
+  OrganizationCourse,
   Profile,
 } from "@/lib/types";
 
@@ -26,36 +28,22 @@ export default async function MemberDetailPage({
   const profile = await getProfile();
   if (!profile) redirect("/login");
   if (!canManageOrganization(profile) || !profile.org_id) redirect("/courses");
+  const isAdmin = profile.role === "admin";
 
   const supabase = await createClient();
-  const [
-    { data: member },
-    { data: courses },
-    { data: lessons },
-    { data: progress },
-    { data: deadlines },
-  ] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("id, email, full_name, role, org_id")
-      .eq("id", memberId)
-      .eq("org_id", profile.org_id)
-      .single(),
-    supabase
-      .from("courses")
-      .select("*")
-      .eq("published", true)
-      .order("sort_order"),
-    supabase.from("lessons").select("*").order("sort_order"),
-    supabase
-      .from("lesson_progress")
-      .select("*")
-      .eq("user_id", memberId),
-    supabase
-      .from("course_deadlines")
-      .select("*")
-      .eq("org_id", profile.org_id),
-  ]);
+  const memberQuery = isAdmin
+    ? supabase
+        .from("profiles")
+        .select("id, email, full_name, role, org_id")
+        .eq("id", memberId)
+        .single()
+    : supabase
+        .from("profiles")
+        .select("id, email, full_name, role, org_id")
+        .eq("id", memberId)
+        .eq("org_id", profile.org_id)
+        .single();
+  const { data: member } = await memberQuery;
 
   if (!member) notFound();
 
@@ -63,12 +51,71 @@ export default async function MemberDetailPage({
     Profile,
     "id" | "email" | "full_name" | "role" | "org_id"
   >;
+  const targetOrgId = typedMember.org_id;
+  const [
+    { data: organization },
+    { data: assignments },
+    { data: progress },
+    { data: deadlines },
+  ] = await Promise.all([
+    targetOrgId
+      ? supabase
+          .from("organizations")
+          .select("id, name")
+          .eq("id", targetOrgId)
+          .single()
+      : Promise.resolve({ data: null }),
+    targetOrgId
+      ? supabase
+          .from("organization_courses")
+          .select("org_id, course_id")
+          .eq("org_id", targetOrgId)
+      : Promise.resolve({ data: [] }),
+    supabase.from("lesson_progress").select("*").eq("user_id", memberId),
+    targetOrgId
+      ? supabase
+          .from("course_deadlines")
+          .select("*")
+          .eq("org_id", targetOrgId)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const assignedCourseIds = [
+    ...new Set(
+      (
+        (assignments as Pick<
+          OrganizationCourse,
+          "org_id" | "course_id"
+        >[] | null) ?? []
+      ).map((assignment) => assignment.course_id),
+    ),
+  ];
+  const [{ data: courses }, { data: lessons }] =
+    assignedCourseIds.length > 0
+      ? await Promise.all([
+          supabase
+            .from("courses")
+            .select("*")
+            .in("id", assignedCourseIds)
+            .eq("published", true)
+            .order("sort_order"),
+          supabase
+            .from("lessons")
+            .select("*")
+            .in("course_id", assignedCourseIds)
+            .order("sort_order"),
+        ])
+      : [{ data: [] }, { data: [] }];
+
   const typedCourses = (courses as Course[] | null) ?? [];
   const publishedCourseIds = new Set(typedCourses.map((course) => course.id));
   const typedLessons = ((lessons as Lesson[] | null) ?? []).filter((lesson) =>
     publishedCourseIds.has(lesson.course_id),
   );
-  const typedProgress = (progress as LessonProgress[] | null) ?? [];
+  const assignedLessonIds = new Set(typedLessons.map((lesson) => lesson.id));
+  const typedProgress = ((progress as LessonProgress[] | null) ?? []).filter(
+    (item) => assignedLessonIds.has(item.lesson_id),
+  );
   const deadlineByCourse = new Map(
     ((deadlines as CourseDeadline[] | null) ?? []).map((deadline) => [
       deadline.course_id,
@@ -96,6 +143,9 @@ export default async function MemberDetailPage({
       .map((item) => item.updated_at)
       .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null;
   const today = todayInTokyo();
+  const organizationName =
+    (organization as Pick<Organization, "id" | "name"> | null)?.name ??
+    "組織未設定";
 
   return (
     <div>
@@ -109,6 +159,9 @@ export default async function MemberDetailPage({
             {typedMember.full_name ?? "（名前未設定）"}
           </h1>
           <p className="mt-1 text-sm text-slate-500">{typedMember.email}</p>
+          <p className="mt-0.5 text-sm text-slate-500">
+            所属組織: {organizationName}
+          </p>
         </div>
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
           {roleLabel(typedMember.role)}

@@ -3,15 +3,27 @@ import { redirect } from "next/navigation";
 import { canManageOrganization, getProfile } from "@/lib/auth";
 import { formatDateTime } from "@/lib/date";
 import { createClient } from "@/lib/supabase/server";
-import type { Course, Lesson, LessonProgress, Profile } from "@/lib/types";
+import type {
+  Course,
+  Lesson,
+  LessonProgress,
+  Organization,
+  OrganizationCourse,
+  Profile,
+} from "@/lib/types";
 
 const PAGE_SIZE = 25;
 
 type MemberStatus = "all" | "not_started" | "in_progress" | "completed";
 type MemberSort = "progress_asc" | "progress_desc" | "name" | "recent";
 
-type MemberSummary = Pick<Profile, "id" | "email" | "full_name" | "role"> & {
+type MemberSummary = Pick<
+  Profile,
+  "id" | "email" | "full_name" | "role" | "org_id"
+> & {
+  organizationName: string;
   completed: number;
+  total: number;
   percentage: number;
   lastActivity: string | null;
   status: Exclude<MemberStatus, "all">;
@@ -41,11 +53,13 @@ function pageHref(
   status: MemberStatus,
   sort: MemberSort,
   page: number,
+  organizationId = "",
 ): string {
   const params = new URLSearchParams();
   if (query) params.set("q", query);
   if (status !== "all") params.set("status", status);
   if (sort !== "progress_asc") params.set("sort", sort);
+  if (organizationId) params.set("org", organizationId);
   if (page > 1) params.set("page", String(page));
   const suffix = params.toString();
   return suffix ? `/admin?${suffix}` : "/admin";
@@ -59,9 +73,11 @@ export default async function AdminPage({
   const profile = await getProfile();
   if (!profile) redirect("/login");
   if (!canManageOrganization(profile) || !profile.org_id) redirect("/courses");
+  const isAdmin = profile.role === "admin";
 
   const params = await searchParams;
   const query = param(params.q).trim().toLocaleLowerCase("ja");
+  const requestedOrganizationId = param(params.org);
   const requestedStatus = param(params.status, "all");
   const status: MemberStatus = [
     "not_started",
@@ -81,72 +97,126 @@ export default async function AdminPage({
   const requestedPage = Number.parseInt(param(params.page, "1"), 10);
 
   const supabase = await createClient();
+  const membersQuery = isAdmin
+    ? supabase
+        .from("profiles")
+        .select("id, email, full_name, role, org_id")
+    : supabase
+        .from("profiles")
+        .select("id, email, full_name, role, org_id")
+        .eq("org_id", profile.org_id);
+  const organizationsQuery = isAdmin
+    ? supabase.from("organizations").select("*").order("name")
+    : supabase
+        .from("organizations")
+        .select("*")
+        .eq("id", profile.org_id)
+        .order("name");
+  const assignmentsQuery = isAdmin
+    ? supabase.from("organization_courses").select("org_id, course_id")
+    : supabase
+        .from("organization_courses")
+        .select("org_id, course_id")
+        .eq("org_id", profile.org_id);
+
   const [
     { data: members },
+    { data: organizations },
     { data: publishedCourses },
     { data: lessons },
     { data: progress },
+    { data: assignments },
   ] =
     await Promise.all([
-      supabase
-        .from("profiles")
-        .select("id, email, full_name, role")
-        .eq("org_id", profile.org_id),
+      membersQuery,
+      organizationsQuery,
       supabase.from("courses").select("id").eq("published", true),
       supabase.from("lessons").select("id, course_id"),
       supabase
         .from("lesson_progress")
         .select("user_id, lesson_id, completed, updated_at"),
+      assignmentsQuery,
     ]);
 
+  const typedOrganizations = (organizations as Organization[] | null) ?? [];
+  const organizationNameById = new Map(
+    typedOrganizations.map((organization) => [
+      organization.id,
+      organization.name,
+    ]),
+  );
+  const visibleOrganizationIds = new Set(
+    typedOrganizations.map((organization) => organization.id),
+  );
+  const organizationId =
+    isAdmin && visibleOrganizationIds.has(requestedOrganizationId)
+      ? requestedOrganizationId
+      : "";
   const publishedCourseIds = new Set(
     ((publishedCourses as Pick<Course, "id">[] | null) ?? []).map(
       (course) => course.id,
     ),
   );
-  const publishedLessonIds = new Set(
-    (
-      (lessons as Pick<Lesson, "id" | "course_id">[] | null) ?? []
-    )
-      .filter((lesson) => publishedCourseIds.has(lesson.course_id))
-      .map((lesson) => lesson.id),
-  );
-  const total = publishedLessonIds.size;
-  const progressByUser = new Map<
-    string,
-    { completed: number; lastActivity: string | null }
-  >();
+  const typedLessons =
+    (lessons as Pick<Lesson, "id" | "course_id">[] | null) ?? [];
+  const lessonsByCourse = new Map<string, string[]>();
+  typedLessons.forEach((lesson) => {
+    if (!publishedCourseIds.has(lesson.course_id)) return;
+    const lessonIds = lessonsByCourse.get(lesson.course_id) ?? [];
+    lessonIds.push(lesson.id);
+    lessonsByCourse.set(lesson.course_id, lessonIds);
+  });
+  const assignedLessonIdsByOrg = new Map<string, Set<string>>();
+  (
+    (assignments as Pick<
+      OrganizationCourse,
+      "org_id" | "course_id"
+    >[] | null) ?? []
+  ).forEach((assignment) => {
+    if (!publishedCourseIds.has(assignment.course_id)) return;
+    const lessonIds = assignedLessonIdsByOrg.get(assignment.org_id) ?? new Set();
+    lessonsByCourse
+      .get(assignment.course_id)
+      ?.forEach((lessonId) => lessonIds.add(lessonId));
+    assignedLessonIdsByOrg.set(assignment.org_id, lessonIds);
+  });
+  const emptyLessonIds = new Set<string>();
+  const progressByUser = new Map<string, Pick<
+    LessonProgress,
+    "lesson_id" | "completed" | "updated_at"
+  >[]>();
   (
     progress as Pick<
       LessonProgress,
       "user_id" | "lesson_id" | "completed" | "updated_at"
     >[] | null
   )?.forEach((item) => {
-    if (!publishedLessonIds.has(item.lesson_id)) return;
-    const current = progressByUser.get(item.user_id) ?? {
-      completed: 0,
-      lastActivity: null,
-    };
-    if (item.completed) current.completed += 1;
-    if (
-      !current.lastActivity ||
-      new Date(item.updated_at) > new Date(current.lastActivity)
-    ) {
-      current.lastActivity = item.updated_at;
-    }
+    const current = progressByUser.get(item.user_id) ?? [];
+    current.push(item);
     progressByUser.set(item.user_id, current);
   });
 
   const allMembers: MemberSummary[] = (
     (members as Pick<
       Profile,
-      "id" | "email" | "full_name" | "role"
+      "id" | "email" | "full_name" | "role" | "org_id"
     >[] | null) ?? []
   ).map((member) => {
-    const memberProgress = progressByUser.get(member.id);
-    const completed = memberProgress?.completed ?? 0;
+    const targetLessonIds = member.org_id
+      ? (assignedLessonIdsByOrg.get(member.org_id) ?? emptyLessonIds)
+      : emptyLessonIds;
+    const memberProgress = (progressByUser.get(member.id) ?? []).filter(
+      (item) => targetLessonIds.has(item.lesson_id),
+    );
+    const completed = memberProgress.filter((item) => item.completed).length;
+    const total = targetLessonIds.size;
     const percentage =
       total === 0 ? 0 : Math.round((completed / total) * 100);
+    const lastActivity =
+      memberProgress
+        .map((item) => item.updated_at)
+        .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ??
+      null;
     const memberStatus =
       completed === 0
         ? "not_started"
@@ -155,20 +225,27 @@ export default async function AdminPage({
           : "in_progress";
     return {
       ...member,
+      organizationName: member.org_id
+        ? (organizationNameById.get(member.org_id) ?? "未登録の組織")
+        : "組織未設定",
       completed,
+      total,
       percentage,
-      lastActivity: memberProgress?.lastActivity ?? null,
+      lastActivity,
       status: memberStatus,
     };
   });
 
   const filtered = allMembers.filter((member) => {
+    const matchesOrganization =
+      !organizationId || member.org_id === organizationId;
     const matchesQuery =
       !query ||
       member.full_name?.toLocaleLowerCase("ja").includes(query) ||
-      member.email?.toLocaleLowerCase("ja").includes(query);
+      member.email?.toLocaleLowerCase("ja").includes(query) ||
+      member.organizationName.toLocaleLowerCase("ja").includes(query);
     const matchesStatus = status === "all" || member.status === status;
-    return matchesQuery && matchesStatus;
+    return matchesOrganization && matchesQuery && matchesStatus;
   });
 
   filtered.sort((a, b) => {
@@ -204,6 +281,9 @@ export default async function AdminPage({
           allMembers.reduce((sum, member) => sum + member.percentage, 0) /
             allMembers.length,
         );
+  const formClassName = isAdmin
+    ? "mt-6 grid gap-3 border-y border-slate-200 bg-white px-4 py-4 sm:grid-cols-[minmax(220px,1fr)_180px_180px_180px_auto]"
+    : "mt-6 grid gap-3 border-y border-slate-200 bg-white px-4 py-4 sm:grid-cols-[minmax(220px,1fr)_180px_180px_auto]";
 
   return (
     <div>
@@ -211,7 +291,9 @@ export default async function AdminPage({
         <div>
           <h1 className="text-2xl font-bold">管理ダッシュボード</h1>
           <p className="mt-1 text-sm text-slate-500">
-            所属メンバーの受講状況を確認できます。
+            {isAdmin
+              ? "全組織の受講状況を確認できます。"
+              : "所属メンバーの受講状況を確認できます。"}
           </p>
         </div>
         <div className="flex gap-2">
@@ -242,13 +324,16 @@ export default async function AdminPage({
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <Stat label="メンバー数" value={allMembers.length} />
-        <Stat label="講座レッスン総数" value={total} />
+        <Stat
+          label={isAdmin ? "組織数" : "対象レッスン数"}
+          value={isAdmin ? typedOrganizations.length : (allMembers[0]?.total ?? 0)}
+        />
         <Stat label="平均完了率" value={`${average}%`} />
       </div>
 
       <form
         method="get"
-        className="mt-6 grid gap-3 border-y border-slate-200 bg-white px-4 py-4 sm:grid-cols-[minmax(220px,1fr)_180px_180px_auto]"
+        className={formClassName}
       >
         <input
           type="search"
@@ -269,6 +354,16 @@ export default async function AdminPage({
           <option value="recent">最近受講した順</option>
           <option value="name">氏名順</option>
         </select>
+        {isAdmin && (
+          <select name="org" defaultValue={organizationId} className="input">
+            <option value="">すべての組織</option>
+            {typedOrganizations.map((organization) => (
+              <option key={organization.id} value={organization.id}>
+                {organization.name}
+              </option>
+            ))}
+          </select>
+        )}
         <div className="flex gap-2">
           <button
             type="submit"
@@ -286,10 +381,13 @@ export default async function AdminPage({
       </form>
 
       <div className="overflow-x-auto border-b border-slate-200 bg-white">
-        <table className="min-w-[860px] w-full text-sm">
+        <table className="min-w-[960px] w-full text-sm">
           <thead className="bg-brand-50 text-left text-xs text-slate-500">
             <tr>
               <th className="px-5 py-3 font-medium">メンバー</th>
+              {isAdmin && (
+                <th className="px-5 py-3 font-medium">組織</th>
+              )}
               <th className="px-5 py-3 font-medium">ロール</th>
               <th className="px-5 py-3 font-medium">状態</th>
               <th className="px-5 py-3 font-medium">完了レッスン</th>
@@ -311,6 +409,11 @@ export default async function AdminPage({
                     {member.email}
                   </p>
                 </td>
+                {isAdmin && (
+                  <td className="px-5 py-3 text-slate-500">
+                    {member.organizationName}
+                  </td>
+                )}
                 <td className="px-5 py-3 text-slate-500">
                   {roleLabel(member.role)}
                 </td>
@@ -328,7 +431,7 @@ export default async function AdminPage({
                   </span>
                 </td>
                 <td className="px-5 py-3 text-slate-500">
-                  {member.completed} / {total}
+                  {member.completed} / {member.total}
                 </td>
                 <td className="px-5 py-3 text-slate-500">
                   {formatDateTime(member.lastActivity)}
@@ -351,7 +454,7 @@ export default async function AdminPage({
             {visibleMembers.length === 0 && (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={isAdmin ? 7 : 6}
                   className="px-5 py-8 text-center text-slate-500"
                 >
                   条件に一致するメンバーがいません。
@@ -371,7 +474,7 @@ export default async function AdminPage({
         <div className="flex items-center gap-3">
           {page > 1 ? (
             <Link
-              href={pageHref(query, status, sort, page - 1)}
+              href={pageHref(query, status, sort, page - 1, organizationId)}
               className="text-brand hover:underline"
             >
               前へ
@@ -384,7 +487,7 @@ export default async function AdminPage({
           </span>
           {page < totalPages ? (
             <Link
-              href={pageHref(query, status, sort, page + 1)}
+              href={pageHref(query, status, sort, page + 1, organizationId)}
               className="text-brand hover:underline"
             >
               次へ
