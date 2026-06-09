@@ -1,0 +1,25 @@
+# === 機密情報（絶対にコミットしない）===
+credentials.json
+token.json
+token.json.*
+client_secret_*.json
+google_drive_credentials.json
+*.pem
+*.key
+.env
+.env.*
+
+# === OS / エディタ ===
+.DS_Store
+*.swp
+
+# === ログ・一時出力 ===
+*.log
+output/*.log
+output/launchd_*.log
+output/auto_update.log
+
+# === ファクトチェック等の中間生成物 ===
+raw_*.txt
+factcheck_*.txt
+final_*.txt
