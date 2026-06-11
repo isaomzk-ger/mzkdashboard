@@ -6,6 +6,7 @@ export type Audience = "executive" | "employee";
 export interface Organization {
   id: string;
   name: string;
+  access_enabled: boolean;
   created_at: string;
 }
 

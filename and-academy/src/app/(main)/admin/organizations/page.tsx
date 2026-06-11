@@ -45,9 +45,9 @@ export default async function OrganizationCoursesPage() {
         ← 管理ダッシュボード
       </Link>
       <div className="mt-2">
-        <h1 className="text-2xl font-bold">組織ごとの講座割り当て</h1>
+        <h1 className="text-2xl font-bold">組織の利用・講座設定</h1>
         <p className="mt-1 text-sm text-slate-500">
-          顧客企業ごとに受講できる公開講座を設定します。
+          契約中の顧客企業だけ利用を有効にし、受講できる講座を設定します。
         </p>
       </div>
 
@@ -63,7 +63,18 @@ export default async function OrganizationCoursesPage() {
             >
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
                 <div>
-                  <h2 className="font-semibold">{organization.name}</h2>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="font-semibold">{organization.name}</h2>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        organization.access_enabled
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-slate-100 text-slate-500"
+                      }`}
+                    >
+                      {organization.access_enabled ? "利用中" : "停止中"}
+                    </span>
+                  </div>
                   <p className="mt-0.5 text-xs text-slate-500">
                     {assigned.size}講座を割り当て中
                   </p>
@@ -72,11 +83,34 @@ export default async function OrganizationCoursesPage() {
                   type="submit"
                   className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
                 >
-                  割り当てを保存
+                  設定を保存
                 </button>
               </div>
 
-              <fieldset className="grid gap-1 p-4 sm:grid-cols-2">
+              <div className="border-b border-slate-100 px-5 py-4">
+                <label className="flex cursor-pointer items-center gap-3">
+                  <input
+                    type="checkbox"
+                    name="access_enabled"
+                    defaultChecked={organization.access_enabled}
+                    className="h-4 w-4 accent-brand"
+                  />
+                  <span>
+                    <span className="block text-sm font-medium">
+                      この組織の利用を有効にする
+                    </span>
+                    <span className="mt-0.5 block text-xs text-slate-500">
+                      オフの場合、所属ユーザーがGoogleログインしても講座は表示されません。
+                    </span>
+                  </span>
+                </label>
+              </div>
+
+              <fieldset
+                className={`grid gap-1 p-4 sm:grid-cols-2 ${
+                  organization.access_enabled ? "" : "opacity-60"
+                }`}
+              >
                 <legend className="sr-only">受講可能な講座</legend>
                 {typedCourses.map((course) => (
                   <label

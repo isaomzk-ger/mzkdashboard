@@ -7,6 +7,7 @@
 create table if not exists organizations (
   id uuid primary key default gen_random_uuid(),
   name text not null,
+  access_enabled boolean not null default false,
   created_at timestamptz not null default now()
 );
 
@@ -175,9 +176,11 @@ as $$
     or exists (
       select 1
       from public.organization_courses oc
+      join public.organizations o on o.id = oc.org_id
       join public.courses c on c.id = oc.course_id
       where oc.org_id = public.current_org_id()
         and oc.course_id = target_course_id
+        and o.access_enabled = true
         and c.published = true
     );
 $$;

@@ -4,10 +4,11 @@
 
 begin;
 
-insert into public.organizations (id, name)
-values ('00000000-0000-0000-0000-000000000001', '株式会社and°')
+insert into public.organizations (id, name, access_enabled)
+values ('00000000-0000-0000-0000-000000000001', '株式会社and°', true)
 on conflict (id) do update
-set name = excluded.name;
+set name = excluded.name,
+    access_enabled = excluded.access_enabled;
 
 insert into public.allowed_emails (email, role, org_id)
 values

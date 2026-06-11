@@ -184,11 +184,18 @@ export async function updateOrganizationCourses(
   formData: FormData,
 ) {
   await requireAdmin();
+  const accessEnabled = formData.get("access_enabled") === "on";
   const courseIds = formData
     .getAll("course_ids")
     .filter((value): value is string => typeof value === "string");
 
   const supabase = await createClient();
+  const { error: organizationError } = await supabase
+    .from("organizations")
+    .update({ access_enabled: accessEnabled })
+    .eq("id", organizationId);
+  if (organizationError) throw new Error(organizationError.message);
+
   const { error } = await supabase.rpc("set_organization_courses", {
     target_org_id: organizationId,
     target_course_ids: courseIds,
@@ -196,5 +203,6 @@ export async function updateOrganizationCourses(
   if (error) throw new Error(error.message);
 
   revalidatePath("/admin/organizations");
+  revalidatePath("/admin");
   revalidatePath("/courses");
 }

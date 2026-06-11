@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ProgressRing from "@/components/ProgressRing";
+import { getProfile } from "@/lib/auth";
 import { formatDate, todayInTokyo } from "@/lib/date";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -7,6 +8,7 @@ import type {
   CourseDeadline,
   Lesson,
   LessonProgress,
+  Organization,
 } from "@/lib/types";
 
 const audienceLabel: Record<string, string> = {
@@ -21,10 +23,46 @@ function formatPosition(seconds: number): string {
 }
 
 export default async function CoursesPage() {
+  const profile = await getProfile();
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const { data: organization } = profile?.org_id
+    ? await supabase
+        .from("organizations")
+        .select("id, access_enabled")
+        .eq("id", profile.org_id)
+        .maybeSingle()
+    : { data: null };
+  const hasCourseAccess =
+    profile?.role === "admin" ||
+    Boolean(
+      (
+        organization as Pick<
+          Organization,
+          "id" | "access_enabled"
+        > | null
+      )?.access_enabled,
+    );
+
+  if (!hasCourseAccess) {
+    return (
+      <div>
+        <h1 className="text-2xl font-bold">講座一覧</h1>
+        <div className="mt-6 border-y border-amber-200 bg-amber-50 px-5 py-6">
+          <h2 className="font-semibold text-amber-900">
+            現在、講座を利用できません
+          </h2>
+          <p className="mt-1 text-sm text-amber-800">
+            所属組織の契約が有効になっていません。組織の管理者またはand°
+            Academy運営へお問い合わせください。
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const [{ data: courses }, { data: lessons }, { data: progress }] =
     await Promise.all([

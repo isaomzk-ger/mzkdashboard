@@ -2,9 +2,10 @@
 
 begin;
 
-insert into public.organizations (id, name) values
-  ('a0000000-0000-0000-0000-000000000001', 'RLS Test Company A'),
-  ('b0000000-0000-0000-0000-000000000001', 'RLS Test Company B');
+insert into public.organizations (id, name, access_enabled) values
+  ('a0000000-0000-0000-0000-000000000001', 'RLS Test Company A', true),
+  ('b0000000-0000-0000-0000-000000000001', 'RLS Test Company B', true),
+  ('c0000000-0000-0000-0000-000000000001', 'RLS Test Company C', false);
 
 insert into public.allowed_emails (email, role, org_id) values
   (
@@ -26,6 +27,11 @@ insert into public.allowed_emails (email, role, org_id) values
     'rls-member-b@example.test',
     'member',
     'b0000000-0000-0000-0000-000000000001'
+  ),
+  (
+    'rls-member-c@example.test',
+    'member',
+    'c0000000-0000-0000-0000-000000000001'
   );
 
 insert into auth.users (
@@ -112,6 +118,23 @@ insert into auth.users (
     '',
     '',
     ''
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    'c0000000-0000-0000-0000-000000000030',
+    'authenticated',
+    'authenticated',
+    'rls-member-c@example.test',
+    '',
+    now(),
+    '{"provider":"email","providers":["email"]}',
+    '{"full_name":"Member C"}',
+    now(),
+    now(),
+    '',
+    '',
+    '',
+    ''
   );
 
 insert into public.courses (
@@ -158,6 +181,10 @@ insert into public.organization_courses (org_id, course_id) values
   (
     'b0000000-0000-0000-0000-000000000001',
     'b0000000-0000-0000-0000-000000000100'
+  ),
+  (
+    'c0000000-0000-0000-0000-000000000001',
+    'a0000000-0000-0000-0000-000000000100'
   );
 
 insert into public.lesson_progress (
@@ -218,6 +245,26 @@ begin
        where id = 'b0000000-0000-0000-0000-000000000200'
      ) then
     raise exception 'Member A lesson isolation failed';
+  end if;
+end;
+$$;
+
+reset role;
+set local role authenticated;
+select set_config(
+  'request.jwt.claim.sub',
+  'c0000000-0000-0000-0000-000000000030',
+  true
+);
+
+do $$
+begin
+  if exists (
+    select 1 from public.courses where title like 'RLS Course%'
+  ) or exists (
+    select 1 from public.lessons where title like 'RLS Lesson%'
+  ) then
+    raise exception 'Inactive organization course access was not blocked';
   end if;
 end;
 $$;
@@ -306,8 +353,8 @@ select set_config(
 do $$
 begin
   if (select count(*) from public.courses where title like 'RLS Course%') <> 2
-     or (select count(*) from public.organizations where name like 'RLS Test%') <> 2
-     or (select count(*) from public.profiles where email like 'rls-%') <> 4
+     or (select count(*) from public.organizations where name like 'RLS Test%') <> 3
+     or (select count(*) from public.profiles where email like 'rls-%') <> 5
      or (select count(*) from public.lesson_progress) <> 2
      or (select count(*) from public.course_deadlines) <> 2
      then
