@@ -23,3 +23,28 @@ output/auto_update.log
 raw_*.txt
 factcheck_*.txt
 final_*.txt
+
+# === 業務ワークスペース（公開repoに載せない・2026-06 privacy対応）===
+/00_context/
+/01_strategy/
+/02_finance/
+/03_projects/
+/04_pm/
+/05_learning/
+/DAILY.md
+/output/reports/
+/output/articles/
+/output/digest/
+/agents/
+/_shared-ai/
+/scripts/
+/tests/
+/image-gen-tool/
+/youtube-growth-advisor/
+/.claire/
+/AGENTS.md.bak-*
+
+# === 業務文脈・取引先名を含む指示書（公開repoから追跡を外す）===
+/CLAUDE.md
+/AGENTS.md
+/.claude/commands/dashboard-app-deploy.md
