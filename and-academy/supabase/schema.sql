@@ -69,19 +69,22 @@ create index if not exists idx_lessons_course on lessons (course_id);
 create index if not exists idx_progress_user on lesson_progress (user_id);
 create index if not exists idx_profiles_org on profiles (org_id);
 
--- 組織ごとの講座締切
+-- メンバーごとの講座締切
 create table if not exists course_deadlines (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references organizations on delete cascade,
+  user_id uuid not null references profiles on delete cascade,
   course_id uuid not null references courses on delete cascade,
   due_date date not null,
   created_by uuid references auth.users on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (org_id, course_id)
+  unique (user_id, course_id)
 );
 
 create index if not exists idx_course_deadlines_org on course_deadlines (org_id);
+create index if not exists idx_course_deadlines_user
+  on course_deadlines (user_id);
 
 -- 組織ごとの受講可能講座
 create table if not exists organization_courses (
@@ -209,16 +212,30 @@ as $$
   where p.org_id = (select org_id from public.profiles where id = auth.uid());
 $$;
 
--- profiles: 自分は読める。運営 admin は全組織、manager は自組織を読める
+create or replace function public.user_belongs_to_org(
+  target_user_id uuid,
+  target_org_id uuid
+)
+returns boolean
+language sql
+security definer set search_path = public
+stable
+as $$
+  select exists (
+    select 1
+    from public.profiles p
+    where p.id = target_user_id
+      and p.org_id = target_org_id
+  );
+$$;
+
+-- profiles: 運営 admin は全組織、その他は同じ組織のメンバーを読める
 create policy "profiles_select_own" on profiles
   for select using (id = auth.uid());
-create policy "profiles_select_org_manager" on profiles
+create policy "profiles_select_same_org" on profiles
   for select using (
     public.is_admin()
-    or (
-      public.can_manage_org()
-      and id in (select public.same_org_user_ids())
-    )
+    or id in (select public.same_org_user_ids())
   );
 -- allowed_emails: 管理者のみ閲覧・管理可
 create policy "allowed_admin_all" on allowed_emails
@@ -252,36 +269,35 @@ create policy "courses_admin_all" on courses
 create policy "lessons_admin_all" on lessons
   for all using (public.is_admin()) with check (public.is_admin());
 
--- lesson_progress: 自分の進捗は読み書き可。運営 admin は全組織、manager は自組織を閲覧可
+-- lesson_progress: 自分は読み書き可。運営 admin は全組織、その他は同じ組織を閲覧可
 create policy "progress_rw_own" on lesson_progress
   for all using (user_id = auth.uid()) with check (user_id = auth.uid());
-create policy "progress_select_org_manager" on lesson_progress
+create policy "progress_select_same_org" on lesson_progress
   for select using (
     public.is_admin()
-    or (
-      public.can_manage_org()
-      and user_id in (select public.same_org_user_ids())
-    )
+    or user_id in (select public.same_org_user_ids())
   );
 
--- course_deadlines: 運営 admin は全組織、manager は自組織分を管理可
+-- course_deadlines: 同じ組織は閲覧可。運営 admin と manager が管理可
 create policy "deadlines_select_own_org" on course_deadlines
   for select using (
     public.is_admin()
-    or org_id = (select org_id from public.profiles where id = auth.uid())
+    or org_id = public.current_org_id()
   );
 create policy "deadlines_manage_own_org" on course_deadlines
   for all using (
     public.is_admin()
     or (
       public.can_manage_org()
-      and org_id = (select org_id from public.profiles where id = auth.uid())
+      and org_id = public.current_org_id()
+      and public.user_belongs_to_org(user_id, org_id)
     )
   ) with check (
     public.is_admin()
     or (
       public.can_manage_org()
-      and org_id = (select org_id from public.profiles where id = auth.uid())
+      and org_id = public.current_org_id()
+      and public.user_belongs_to_org(user_id, org_id)
     )
   );
 

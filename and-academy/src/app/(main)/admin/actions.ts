@@ -130,9 +130,17 @@ export async function deleteLesson(lessonId: string, courseId: string) {
   revalidatePath(`/admin/courses/${courseId}/edit`);
 }
 
-// ---- 組織ごとの講座締切 ----
-export async function setCourseDeadline(courseId: string, formData: FormData) {
+// ---- メンバーごとの講座締切 ----
+export async function setCourseDeadline(
+  organizationId: string,
+  memberId: string,
+  courseId: string,
+  formData: FormData,
+) {
   const profile = await requireOrganizationManager();
+  if (profile.role !== "admin" && profile.org_id !== organizationId) {
+    throw new Error("他の組織の締切は変更できません。");
+  }
   const dueDate = str(formData.get("due_date"));
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) {
     throw new Error("締切日を入力してください。");
@@ -146,13 +154,14 @@ export async function setCourseDeadline(courseId: string, formData: FormData) {
 
   const { error } = await supabase.from("course_deadlines").upsert(
     {
-      org_id: profile.org_id,
+      org_id: organizationId,
+      user_id: memberId,
       course_id: courseId,
       due_date: dueDate,
       created_by: user.id,
       updated_at: new Date().toISOString(),
     },
-    { onConflict: "org_id,course_id" },
+    { onConflict: "user_id,course_id" },
   );
   if (error) throw new Error(error.message);
 
@@ -162,13 +171,21 @@ export async function setCourseDeadline(courseId: string, formData: FormData) {
   revalidatePath(`/courses/${courseId}`);
 }
 
-export async function removeCourseDeadline(courseId: string) {
+export async function removeCourseDeadline(
+  organizationId: string,
+  memberId: string,
+  courseId: string,
+) {
   const profile = await requireOrganizationManager();
+  if (profile.role !== "admin" && profile.org_id !== organizationId) {
+    throw new Error("他の組織の締切は変更できません。");
+  }
   const supabase = await createClient();
   const { error } = await supabase
     .from("course_deadlines")
     .delete()
-    .eq("org_id", profile.org_id)
+    .eq("org_id", organizationId)
+    .eq("user_id", memberId)
     .eq("course_id", courseId);
   if (error) throw new Error(error.message);
 

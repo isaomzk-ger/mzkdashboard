@@ -274,13 +274,15 @@ where org_id = '00000000-0000-0000-0000-000000000001'
 
 insert into public.course_deadlines (
   org_id,
+  user_id,
   course_id,
   due_date,
   created_by,
   updated_at
 )
-values (
+select
   '00000000-0000-0000-0000-000000000001',
+  profiles.id,
   '40000000-0000-0000-0000-000000000001',
   current_date + 30,
   (
@@ -290,8 +292,9 @@ values (
     limit 1
   ),
   now()
-)
-on conflict (org_id, course_id) do update
+from public.profiles profiles
+where profiles.org_id = '00000000-0000-0000-0000-000000000001'
+on conflict (user_id, course_id) do update
 set due_date = excluded.due_date,
     created_by = excluded.created_by,
     updated_at = excluded.updated_at;

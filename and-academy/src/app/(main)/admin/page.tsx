@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { canManageOrganization, getProfile } from "@/lib/auth";
+import {
+  canManageOrganization,
+  canViewOrganizationProgress,
+  getProfile,
+} from "@/lib/auth";
 import { formatDateTime } from "@/lib/date";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -72,8 +76,11 @@ export default async function AdminPage({
 }) {
   const profile = await getProfile();
   if (!profile) redirect("/login");
-  if (!canManageOrganization(profile) || !profile.org_id) redirect("/courses");
+  if (!canViewOrganizationProgress(profile) || !profile.org_id) {
+    redirect("/courses");
+  }
   const isAdmin = profile.role === "admin";
+  const canManage = canManageOrganization(profile);
 
   const params = await searchParams;
   const query = param(params.q).trim().toLocaleLowerCase("ja");
@@ -289,37 +296,41 @@ export default async function AdminPage({
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">管理ダッシュボード</h1>
+          <h1 className="text-2xl font-bold">
+            {canManage ? "管理ダッシュボード" : "チーム進捗"}
+          </h1>
           <p className="mt-1 text-sm text-slate-500">
             {isAdmin
               ? "全組織の受講状況を確認できます。"
-              : "所属メンバーの受講状況を確認できます。"}
+              : "同じ組織のメンバーの受講状況を確認できます。"}
           </p>
         </div>
-        <div className="flex gap-2">
-          {profile.role === "admin" && (
+        {canManage && (
+          <div className="flex gap-2">
+            {profile.role === "admin" && (
+              <Link
+                href="/admin/organizations"
+                className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-brand-50"
+              >
+                講座を割り当て
+              </Link>
+            )}
             <Link
-              href="/admin/organizations"
+              href="/admin/deadlines"
               className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-brand-50"
             >
-              講座を割り当て
+              締切を設定
             </Link>
-          )}
-          <Link
-            href="/admin/deadlines"
-            className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-brand-50"
-          >
-            締切を設定
-          </Link>
-          {profile.role === "admin" && (
-            <Link
-              href="/admin/courses"
-              className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
-            >
-              講座を管理
-            </Link>
-          )}
-        </div>
+            {profile.role === "admin" && (
+              <Link
+                href="/admin/courses"
+                className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
+              >
+                講座を管理
+              </Link>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">

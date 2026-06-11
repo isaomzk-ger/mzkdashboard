@@ -188,6 +188,7 @@ join ordered_lessons lessons
 
 insert into public.course_deadlines (
   org_id,
+  user_id,
   course_id,
   due_date,
   created_by,
@@ -195,6 +196,7 @@ insert into public.course_deadlines (
 )
 select
   '00000000-0000-0000-0000-000000000001',
+  profiles.id,
   courses.id,
   current_date + case when courses.audience = 'executive' then 30 else 45 end,
   (
@@ -208,8 +210,10 @@ from public.courses courses
 join public.organization_courses assignments
   on assignments.course_id = courses.id
  and assignments.org_id = '00000000-0000-0000-0000-000000000001'
+join public.profiles profiles
+  on profiles.org_id = assignments.org_id
 where courses.published = true
-on conflict (org_id, course_id) do update
+on conflict (user_id, course_id) do update
 set due_date = excluded.due_date,
     created_by = excluded.created_by,
     updated_at = excluded.updated_at;

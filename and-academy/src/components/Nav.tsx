@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { canManageOrganization, getProfile } from "@/lib/auth";
+import {
+  canManageOrganization,
+  canViewOrganizationProgress,
+  getProfile,
+} from "@/lib/auth";
 import { signOut } from "@/app/actions";
 
 export default async function Nav() {
@@ -16,9 +20,9 @@ export default async function Nav() {
           <Link href="/courses" className="text-slate-600 hover:text-slate-900">
             講座
           </Link>
-          {canManageOrganization(profile) && (
+          {canViewOrganizationProgress(profile) && (
             <Link href="/admin" className="text-slate-600 hover:text-slate-900">
-              管理
+              {canManageOrganization(profile) ? "管理" : "チーム進捗"}
             </Link>
           )}
           {profile ? (

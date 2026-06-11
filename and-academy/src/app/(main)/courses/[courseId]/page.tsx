@@ -51,6 +51,7 @@ export default async function CourseDetailPage({
   const { data: deadline } = await supabase
     .from("course_deadlines")
     .select("*")
+    .eq("user_id", user?.id ?? "")
     .eq("course_id", courseId)
     .maybeSingle();
 

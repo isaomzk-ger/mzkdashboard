@@ -21,3 +21,7 @@ export async function getProfile(): Promise<Profile | null> {
 export function canManageOrganization(profile: Profile | null): boolean {
   return profile?.role === "admin" || profile?.role === "manager";
 }
+
+export function canViewOrganizationProgress(profile: Profile | null): boolean {
+  return Boolean(profile?.org_id);
+}

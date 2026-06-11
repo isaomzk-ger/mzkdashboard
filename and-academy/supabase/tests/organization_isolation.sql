@@ -204,16 +204,29 @@ insert into public.lesson_progress (
     'b0000000-0000-0000-0000-000000000200',
     true,
     now()
+  ),
+  (
+    'a0000000-0000-0000-0000-000000000020',
+    'a0000000-0000-0000-0000-000000000200',
+    false,
+    null
   );
 
-insert into public.course_deadlines (org_id, course_id, due_date) values
+insert into public.course_deadlines (
+  org_id,
+  user_id,
+  course_id,
+  due_date
+) values
   (
     'a0000000-0000-0000-0000-000000000001',
+    'a0000000-0000-0000-0000-000000000030',
     'a0000000-0000-0000-0000-000000000100',
     '2030-01-01'
   ),
   (
     'b0000000-0000-0000-0000-000000000001',
+    'b0000000-0000-0000-0000-000000000030',
     'b0000000-0000-0000-0000-000000000100',
     '2030-01-02'
   );
@@ -226,6 +239,8 @@ select set_config(
 );
 
 do $$
+declare
+  deadline_write_was_blocked boolean := false;
 begin
   if (select count(*) from public.courses where title like 'RLS Course%') <> 1
      or not exists (
@@ -245,6 +260,47 @@ begin
        where id = 'b0000000-0000-0000-0000-000000000200'
      ) then
     raise exception 'Member A lesson isolation failed';
+  end if;
+
+  if not exists (
+    select 1 from public.profiles
+    where id = 'a0000000-0000-0000-0000-000000000020'
+  ) or exists (
+    select 1 from public.profiles
+    where id = 'b0000000-0000-0000-0000-000000000030'
+  ) then
+    raise exception 'Member A team profile visibility failed';
+  end if;
+
+  if not exists (
+    select 1 from public.lesson_progress
+    where user_id = 'a0000000-0000-0000-0000-000000000020'
+  ) or exists (
+    select 1 from public.lesson_progress
+    where user_id = 'b0000000-0000-0000-0000-000000000030'
+  ) then
+    raise exception 'Member A team progress visibility failed';
+  end if;
+
+  begin
+    insert into public.course_deadlines (
+      org_id,
+      user_id,
+      course_id,
+      due_date
+    ) values (
+      'a0000000-0000-0000-0000-000000000001',
+      'a0000000-0000-0000-0000-000000000020',
+      'a0000000-0000-0000-0000-000000000100',
+      '2030-02-01'
+    );
+  exception
+    when insufficient_privilege then
+      deadline_write_was_blocked := true;
+  end;
+
+  if not deadline_write_was_blocked then
+    raise exception 'Member A deadline mutation was not blocked';
   end if;
 end;
 $$;
@@ -304,6 +360,7 @@ select set_config(
 do $$
 declare
   assignment_was_blocked boolean := false;
+  cross_org_deadline_was_blocked boolean := false;
 begin
   if exists (
     select 1 from public.profiles
@@ -339,6 +396,39 @@ begin
   if not assignment_was_blocked then
     raise exception 'Manager A assignment mutation was not blocked';
   end if;
+
+  insert into public.course_deadlines (
+    org_id,
+    user_id,
+    course_id,
+    due_date
+  ) values (
+    'a0000000-0000-0000-0000-000000000001',
+    'a0000000-0000-0000-0000-000000000020',
+    'a0000000-0000-0000-0000-000000000100',
+    '2030-02-01'
+  );
+
+  begin
+    insert into public.course_deadlines (
+      org_id,
+      user_id,
+      course_id,
+      due_date
+    ) values (
+      'a0000000-0000-0000-0000-000000000001',
+      'b0000000-0000-0000-0000-000000000030',
+      'a0000000-0000-0000-0000-000000000100',
+      '2030-02-02'
+    );
+  exception
+    when insufficient_privilege then
+      cross_org_deadline_was_blocked := true;
+  end;
+
+  if not cross_org_deadline_was_blocked then
+    raise exception 'Manager A cross-organization deadline was not blocked';
+  end if;
 end;
 $$;
 
@@ -355,8 +445,8 @@ begin
   if (select count(*) from public.courses where title like 'RLS Course%') <> 2
      or (select count(*) from public.organizations where name like 'RLS Test%') <> 3
      or (select count(*) from public.profiles where email like 'rls-%') <> 5
-     or (select count(*) from public.lesson_progress) <> 2
-     or (select count(*) from public.course_deadlines) <> 2
+     or (select count(*) from public.lesson_progress) <> 3
+     or (select count(*) from public.course_deadlines) <> 3
      then
     raise exception 'Admin cross-organization access failed';
   end if;

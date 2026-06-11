@@ -80,7 +80,8 @@ export default async function CoursesPage() {
 
   const { data: deadlines } = await supabase
     .from("course_deadlines")
-    .select("*");
+    .select("*")
+    .eq("user_id", user?.id ?? "");
 
   const typedCourses = (courses as Course[] | null) ?? [];
   const publishedCourseIds = new Set(typedCourses.map((course) => course.id));
