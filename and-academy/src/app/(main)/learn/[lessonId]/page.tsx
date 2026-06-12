@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { computeUnlocked } from "@/lib/progress";
 import CompleteButton from "@/components/CompleteButton";
 import VideoPlayer from "@/components/VideoPlayer";
+import LessonCoachPanel from "@/components/LessonCoachPanel";
 import type { Lesson, LessonProgress } from "@/lib/types";
 
 export default async function LearnPage({
@@ -137,6 +138,11 @@ export default async function LearnPage({
           </Link>
         )}
       </div>
+
+      <LessonCoachPanel
+        lessonId={typedLesson.id}
+        lessonTitle={typedLesson.title}
+      />
     </div>
   );
 }
