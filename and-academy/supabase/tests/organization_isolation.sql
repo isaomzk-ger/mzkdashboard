@@ -501,8 +501,61 @@ begin
      ) then
     raise exception 'Manager A audit visibility failed';
   end if;
+
+  perform public.manage_organization_invite(
+    'a0000000-0000-0000-0000-000000000001',
+    'rls-member-a@example.test',
+    'member',
+    false
+  );
+
+  if exists (
+    select 1
+    from public.profiles
+    where id = 'a0000000-0000-0000-0000-000000000030'
+      and active = true
+  ) then
+    raise exception 'Manager A member suspension failed';
+  end if;
 end;
 $$;
+
+reset role;
+set local role authenticated;
+select set_config(
+  'request.jwt.claim.sub',
+  'a0000000-0000-0000-0000-000000000030',
+  true
+);
+
+do $$
+begin
+  if exists (
+    select 1 from public.courses where title like 'RLS Course%'
+  ) or exists (
+    select 1 from public.lesson_progress
+  ) or exists (
+    select 1 from public.get_team_progress()
+  ) then
+    raise exception 'Suspended member access was not blocked';
+  end if;
+end;
+$$;
+
+reset role;
+set local role authenticated;
+select set_config(
+  'request.jwt.claim.sub',
+  'a0000000-0000-0000-0000-000000000020',
+  true
+);
+
+select public.manage_organization_invite(
+  'a0000000-0000-0000-0000-000000000001',
+  'rls-member-a@example.test',
+  'member',
+  true
+);
 
 reset role;
 set local role authenticated;
