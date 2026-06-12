@@ -223,3 +223,78 @@ export async function updateOrganizationCourses(
   revalidatePath("/admin");
   revalidatePath("/courses");
 }
+
+// ---- 組織メンバー・招待 ----
+export async function createOrganizationInvite(
+  organizationId: string,
+  formData: FormData,
+) {
+  const profile = await requireOrganizationManager();
+  if (profile.role !== "admin" && profile.org_id !== organizationId) {
+    throw new Error("他の組織には招待できません。");
+  }
+
+  const email = str(formData.get("email")).toLowerCase();
+  const role = str(formData.get("role"));
+  if (!email || !["manager", "member"].includes(role)) {
+    throw new Error("メールアドレスと権限を確認してください。");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("manage_organization_invite", {
+    target_org_id: organizationId,
+    target_email: email,
+    target_role: role,
+    target_active: true,
+  });
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/members/manage");
+  revalidatePath("/admin");
+}
+
+export async function updateOrganizationInvite(
+  organizationId: string,
+  email: string,
+  formData: FormData,
+) {
+  const profile = await requireOrganizationManager();
+  if (profile.role !== "admin" && profile.org_id !== organizationId) {
+    throw new Error("他の組織のメンバーは変更できません。");
+  }
+
+  const role = str(formData.get("role"));
+  const active = formData.get("active") === "on";
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("manage_organization_invite", {
+    target_org_id: organizationId,
+    target_email: email,
+    target_role: role,
+    target_active: active,
+  });
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/members/manage");
+  revalidatePath("/admin");
+  revalidatePath("/courses");
+}
+
+export async function deleteOrganizationInvite(
+  organizationId: string,
+  email: string,
+) {
+  const profile = await requireOrganizationManager();
+  if (profile.role !== "admin" && profile.org_id !== organizationId) {
+    throw new Error("他の組織のメンバーは削除できません。");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("delete_organization_member", {
+    target_org_id: organizationId,
+    target_email: email,
+  });
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/members/manage");
+  revalidatePath("/admin");
+}

@@ -16,7 +16,18 @@ export interface Profile {
   email: string | null;
   full_name: string | null;
   role: Role;
+  active: boolean;
   created_at: string;
+}
+
+export interface AllowedEmail {
+  email: string;
+  role: Role;
+  org_id: string | null;
+  active: boolean;
+  invited_by: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Course {
@@ -67,4 +78,23 @@ export interface OrganizationCourse {
   course_id: string;
   assigned_by: string | null;
   created_at: string;
+}
+
+export interface AuditLog {
+  id: number;
+  org_id: string | null;
+  actor_id: string | null;
+  action: string;
+  target_type: string;
+  target_id: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface TeamProgress {
+  user_id: string;
+  full_name: string;
+  completed_count: number;
+  total_count: number;
+  percentage: number;
 }

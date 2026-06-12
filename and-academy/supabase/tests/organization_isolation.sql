@@ -262,24 +262,40 @@ begin
     raise exception 'Member A lesson isolation failed';
   end if;
 
-  if not exists (
+  if exists (
     select 1 from public.profiles
     where id = 'a0000000-0000-0000-0000-000000000020'
   ) or exists (
     select 1 from public.profiles
     where id = 'b0000000-0000-0000-0000-000000000030'
   ) then
-    raise exception 'Member A team profile visibility failed';
+    raise exception 'Member A private profile visibility failed';
   end if;
 
-  if not exists (
+  if exists (
     select 1 from public.lesson_progress
     where user_id = 'a0000000-0000-0000-0000-000000000020'
   ) or exists (
     select 1 from public.lesson_progress
     where user_id = 'b0000000-0000-0000-0000-000000000030'
   ) then
-    raise exception 'Member A team progress visibility failed';
+    raise exception 'Member A detailed progress visibility failed';
+  end if;
+
+  if (select count(*) from public.get_team_progress()) <> 3
+     or not exists (
+       select 1
+       from public.get_team_progress()
+       where user_id = 'a0000000-0000-0000-0000-000000000020'
+         and full_name = 'Manager A'
+         and percentage = 0
+     )
+     or exists (
+       select 1
+       from public.get_team_progress()
+       where user_id = 'b0000000-0000-0000-0000-000000000030'
+     ) then
+    raise exception 'Member A sanitized team progress failed';
   end if;
 
   begin
@@ -361,6 +377,7 @@ do $$
 declare
   assignment_was_blocked boolean := false;
   cross_org_deadline_was_blocked boolean := false;
+  cross_org_invite_was_blocked boolean := false;
 begin
   if exists (
     select 1 from public.profiles
@@ -429,6 +446,61 @@ begin
   if not cross_org_deadline_was_blocked then
     raise exception 'Manager A cross-organization deadline was not blocked';
   end if;
+
+  perform public.manage_organization_invite(
+    'a0000000-0000-0000-0000-000000000001',
+    'new-member-a@example.test',
+    'member',
+    true
+  );
+
+  if not exists (
+    select 1
+    from public.allowed_emails
+    where email = 'new-member-a@example.test'
+      and org_id = 'a0000000-0000-0000-0000-000000000001'
+      and active = true
+  ) then
+    raise exception 'Manager A invite creation failed';
+  end if;
+
+  begin
+    perform public.manage_organization_invite(
+      'b0000000-0000-0000-0000-000000000001',
+      'blocked-member-b@example.test',
+      'member',
+      true
+    );
+  exception
+    when others then
+      cross_org_invite_was_blocked := sqlerrm = 'forbidden';
+  end;
+
+  if not cross_org_invite_was_blocked then
+    raise exception 'Manager A cross-organization invite was not blocked';
+  end if;
+
+  perform public.delete_organization_member(
+    'a0000000-0000-0000-0000-000000000001',
+    'new-member-a@example.test'
+  );
+
+  if exists (
+    select 1
+    from public.allowed_emails
+    where email = 'new-member-a@example.test'
+  ) then
+    raise exception 'Manager A invited member deletion failed';
+  end if;
+
+  if (select count(*) from public.audit_logs) < 3
+     or exists (
+       select 1
+       from public.audit_logs
+       where org_id = 'b0000000-0000-0000-0000-000000000001'
+     ) then
+    raise exception 'Manager A audit visibility failed';
+  end if;
 end;
 $$;
 
@@ -447,6 +519,7 @@ begin
      or (select count(*) from public.profiles where email like 'rls-%') <> 5
      or (select count(*) from public.lesson_progress) <> 3
      or (select count(*) from public.course_deadlines) <> 3
+     or (select count(*) from public.audit_logs) < 3
      then
     raise exception 'Admin cross-organization access failed';
   end if;

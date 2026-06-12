@@ -15,7 +15,8 @@ export async function getProfile(): Promise<Profile | null> {
     .eq("id", user.id)
     .single();
 
-  return (data as Profile) ?? null;
+  const profile = (data as Profile) ?? null;
+  return profile?.active === false ? null : profile;
 }
 
 export function canManageOrganization(profile: Profile | null): boolean {

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import ProgressRing from "@/components/ProgressRing";
 import {
   canManageOrganization,
   canViewOrganizationProgress,
@@ -14,6 +15,7 @@ import type {
   Organization,
   OrganizationCourse,
   Profile,
+  TeamProgress,
 } from "@/lib/types";
 
 const PAGE_SIZE = 25;
@@ -81,6 +83,19 @@ export default async function AdminPage({
   }
   const isAdmin = profile.role === "admin";
   const canManage = canManageOrganization(profile);
+
+  if (!canManage) {
+    const supabase = await createClient();
+    const { data: teamProgress, error } = await supabase.rpc(
+      "get_team_progress",
+    );
+    if (error) throw new Error(error.message);
+    return (
+      <TeamProgressDashboard
+        rows={(teamProgress as TeamProgress[] | null) ?? []}
+      />
+    );
+  }
 
   const params = await searchParams;
   const query = param(params.q).trim().toLocaleLowerCase("ja");
@@ -316,10 +331,22 @@ export default async function AdminPage({
               </Link>
             )}
             <Link
+              href="/admin/members/manage"
+              className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-brand-50"
+            >
+              メンバー管理
+            </Link>
+            <Link
               href="/admin/deadlines"
               className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-brand-50"
             >
               締切を設定
+            </Link>
+            <Link
+              href="/admin/audit-logs"
+              className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-brand-50"
+            >
+              操作履歴
             </Link>
             {profile.role === "admin" && (
               <Link
@@ -517,6 +544,39 @@ function Stat({ label, value }: { label: string; value: string | number }) {
     <div className="rounded-lg border border-slate-200 bg-white p-5">
       <p className="text-xs text-slate-500">{label}</p>
       <p className="mt-1 text-2xl font-bold">{value}</p>
+    </div>
+  );
+}
+
+function TeamProgressDashboard({ rows }: { rows: TeamProgress[] }) {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold">チーム進捗</h1>
+      <p className="mt-1 text-sm text-slate-500">
+        同じ組織のメンバーの氏名と全体進捗を確認できます。
+      </p>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        {rows.map((member) => (
+          <div
+            key={member.user_id}
+            className="flex items-center gap-4 border-y border-slate-200 bg-white px-5 py-4"
+          >
+            <ProgressRing percentage={member.percentage} size="sm" />
+            <div className="min-w-0">
+              <p className="font-medium text-slate-900">{member.full_name}</p>
+              <p className="mt-1 text-sm text-slate-500">
+                {member.completed_count} / {member.total_count} レッスン完了
+              </p>
+            </div>
+          </div>
+        ))}
+        {rows.length === 0 && (
+          <p className="text-sm text-slate-500">
+            表示できるメンバーがいません。
+          </p>
+        )}
+      </div>
     </div>
   );
 }

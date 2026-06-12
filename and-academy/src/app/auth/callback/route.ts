@@ -12,7 +12,22 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${redirect}`);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      const { data: profile } = user
+        ? await supabase
+            .from("profiles")
+            .select("active")
+            .eq("id", user.id)
+            .maybeSingle()
+        : { data: null };
+
+      if (profile?.active !== false) {
+        return NextResponse.redirect(`${origin}${redirect}`);
+      }
+
+      await supabase.auth.signOut();
     }
   }
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { canViewOrganizationProgress, getProfile } from "@/lib/auth";
+import { canManageOrganization, getProfile } from "@/lib/auth";
 import { formatDate, formatDateTime, todayInTokyo } from "@/lib/date";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -27,7 +27,7 @@ export default async function MemberDetailPage({
   const { memberId } = await params;
   const profile = await getProfile();
   if (!profile) redirect("/login");
-  if (!canViewOrganizationProgress(profile) || !profile.org_id) {
+  if (!canManageOrganization(profile) || !profile.org_id) {
     redirect("/courses");
   }
   const isAdmin = profile.role === "admin";
