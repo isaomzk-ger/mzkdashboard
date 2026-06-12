@@ -152,13 +152,13 @@ export default function LessonCoachPanel({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
+            if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
               e.preventDefault();
               send(input);
             }
           }}
           rows={1}
-          placeholder="質問や自社の状況・データを入力（Enterで送信 / Shift+Enterで改行）"
+          placeholder="質問や自社の状況・データを入力（送信は ⌘/Ctrl+Enter または送信ボタン）"
           className="max-h-32 min-h-[44px] flex-1 resize-none rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none"
           disabled={isStreaming}
         />
