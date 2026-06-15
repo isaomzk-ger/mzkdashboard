@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>and° Academy ｜ 30日で会社にAIを定着させる</title>
+<!-- 確認版：CSP制約のためWebフォント不使用。システムフォント（Mac=ヒラギノ等）で表示。本番LPではWebフォント＋CSP調整。 -->
+<!--
+  編集ガイド（社長・Claude 向け）：黄色の【…】が記入待ち。Claudeに渡し「【】部分を当社の情報で埋めて」でOK。
+  記入欄：①CTAの予約/問い合わせURL ②運営会社情報（フッター）③お客様の声 ④ヒーローのキャッチ最終選定
+  ※ PMVVは andinc.site から読み取った内容です。ラベル/文言を原文と照合・修正してください。
+  ブランド：and° Academy（brand #1180BF）＋ andinc.site のダークネイビー構造（ヘッダー/フッター）。
+-->
+<style>
+  :root{
+    --bg:#F3F9FC; --surface:#FFFFFF; --ink:#1B2733; --ink-soft:#3C4856; --muted:#6B7886;
+    --line:#E1ECF3; --line2:#D2E1EC;
+    --brand:#1180BF; --brand-dark:#006FB7; --brand-light:#2EA4D8; --brand-soft:#E7F2FA;
+    --dark:#0B2A40; --dark2:#082134;
+    --fill-bg:#FBF1CE; --fill-line:#D9B441; --fill-ink:#6E5410;
+    --sans:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.85;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+  section{padding:100px 0}
+  .eyebrow{font-size:12.5px;font-weight:700;letter-spacing:.16em;color:var(--brand);text-transform:uppercase}
+  h2{font-weight:900;font-size:33px;line-height:1.5;letter-spacing:.01em;color:var(--ink)}
+  h3{font-weight:700;font-size:19px;line-height:1.6}
+  p{color:var(--ink-soft)}
+  .muted{color:var(--muted)} .lead{font-size:17px;line-height:2;color:var(--ink-soft)}
+  .center{text-align:center} .brand{color:var(--brand)}
+  .btn{display:inline-block;background:var(--brand);color:#fff;font-weight:700;font-size:16px;letter-spacing:.03em;padding:17px 38px;border-radius:12px;text-decoration:none;transition:.2s;box-shadow:0 8px 22px rgba(17,128,191,.22)}
+  .btn:hover{background:var(--brand-dark)}
+  .btn-ghost{display:inline-block;color:var(--ink);font-weight:700;font-size:15px;text-decoration:none;border-bottom:2px solid var(--line2);padding-bottom:3px}
+  .fill-block{background:var(--fill-bg);border:1.5px dashed var(--fill-line);color:var(--fill-ink);border-radius:14px;padding:18px 22px;font-weight:600;font-size:14px;line-height:1.7}
+
+  .draftbar{background:#FBF1CE;border-bottom:1px solid #E4CE82;color:#6E5410;font-size:12.5px;text-align:center;padding:9px 16px}
+  nav{position:sticky;top:0;z-index:10;background:var(--dark)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .logo{font-weight:900;font-size:20px;letter-spacing:.01em;color:#fff}
+  .logo .o{color:var(--brand-light)}
+  .nav-cta{font-size:14px;font-weight:700;color:#fff;background:var(--brand);padding:9px 18px;border-radius:9px;text-decoration:none}
+
+  .hero{position:relative;overflow:hidden;padding:120px 0 108px}
+  .hero .ring{position:absolute;border-radius:50%;border:1.5px solid var(--line2);opacity:.7}
+  .hero .ring.r1{width:540px;height:540px;right:-190px;top:-160px}
+  .hero .ring.r2{width:300px;height:300px;right:-50px;top:60px;border-color:#CBE5F4}
+  .hero-in{position:relative;max-width:780px}
+  .hero h1{font-weight:900;font-size:53px;line-height:1.4;letter-spacing:.01em;margin:20px 0 24px}
+  .hero h1 .u{background:linear-gradient(transparent 60%, var(--brand-soft) 60%);padding:0 2px}
+  .hero .sub{font-size:18px;line-height:2.05;color:var(--ink-soft);max-width:700px;margin-bottom:34px}
+  .hero .actions{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+  .badges{display:flex;flex-wrap:wrap;gap:14px 28px;margin-top:40px;padding-top:28px;border-top:1px solid var(--line)}
+  .badge{font-size:14px;color:var(--muted)} .badge b{color:var(--ink);font-weight:700}
+
+  .ask{font-size:24px;font-weight:900;line-height:1.7;max-width:760px;color:var(--ink)} .ask .q{color:var(--brand)}
+  .problem-sub{font-size:17px;line-height:2;color:var(--ink-soft);max-width:720px;margin-top:18px}
+
+  .stance{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .stance h2 .hl{color:var(--brand)}
+
+  .gains{display:grid;grid-template-columns:1fr 1fr;gap:14px 30px;margin-top:40px;max-width:880px}
+  .gain{display:flex;gap:14px;align-items:flex-start;font-size:16px;font-weight:500;color:var(--ink-soft);line-height:1.7}
+  .gain .ic{flex:none;width:26px;height:26px;border-radius:50%;background:var(--brand-soft);color:var(--brand-dark);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;margin-top:2px}
+  .gain-closer{margin-top:30px;font-size:19px;font-weight:900;color:var(--ink)}
+
+  .reasons{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:46px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:32px 26px}
+  .card .n{font-weight:900;font-size:14px;color:var(--brand);letter-spacing:.1em} .card h3{margin:12px 0 12px} .card p{font-size:15px;line-height:1.95;color:var(--muted)}
+
+  .coach{background:var(--dark);color:#EAF2F8} .coach h2{color:#fff} .coach .lead{color:#AFC6D8}
+  .chat{max-width:660px;margin:32px auto 0}
+  .b{padding:13px 18px;border-radius:16px;margin:10px 0;font-size:15.5px;line-height:1.8;max-width:84%}
+  .b.user{background:var(--brand);color:#fff;margin-left:auto;border-bottom-right-radius:5px}
+  .b.coach{background:#11354F;color:#E6F0F8;border-bottom-left-radius:5px;border:1px solid #1B466B}
+  .coach .kick{text-align:center;margin-top:32px;font-weight:900;font-size:19px;color:#fff}
+
+  .pmvv{background:var(--bg)}
+  .pmvv-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:42px}
+  .pm{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:30px 28px;position:relative}
+  .pm .lab{font-size:12px;font-weight:700;letter-spacing:.18em;color:var(--brand)}
+  .pm .lab .ja{color:var(--muted);font-weight:500;letter-spacing:.04em;margin-left:8px}
+  .pm .txt{font-weight:900;font-size:21px;line-height:1.65;color:var(--ink);margin-top:12px}
+  .pm.value{grid-column:1 / -1;background:var(--dark);border-color:var(--dark)}
+  .pm.value .lab{color:var(--brand-light)} .pm.value .lab .ja{color:#9FB7C8}
+  .pm.value .txt{color:#fff}
+  .pmvv-note{font-size:12.5px;color:var(--muted);margin-top:18px}
+
+  .phases{display:flex;flex-wrap:wrap;gap:9px;margin:22px 0 24px}
+  .chip{background:var(--brand-soft);color:var(--brand-dark);border-radius:999px;padding:7px 16px;font-size:13px;font-weight:700}
+  .assets{font-size:15px;color:var(--muted);line-height:2} .assets b{color:var(--ink);font-weight:700}
+
+  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:38px}
+  .step .s{font-weight:900;font-size:13px;color:var(--brand);letter-spacing:.08em} .step h3{font-size:17px;margin:10px 0 6px} .step p{font-size:14px;color:var(--muted)}
+
+  .faq-item{border-top:1px solid var(--line);padding:22px 0} .faq-item:last-child{border-bottom:1px solid var(--line)}
+  .faq-q{font-weight:700;font-size:17px;display:flex;gap:12px} .faq-q .mk{color:var(--brand);font-weight:900}
+  .faq-a{color:var(--muted);font-size:15px;margin-top:8px;padding-left:28px}
+
+  .final{background:var(--dark);color:#fff;text-align:center} .final h2{color:#fff;font-size:36px} .final p{color:#AFC6D8;font-size:17px;margin:16px 0 30px}
+  footer{background:var(--dark2);color:#8FA6B7;font-size:14px;padding:50px 0} footer .logo{color:#EAF2F8}
+
+  @media(max-width:760px){
+    section{padding:64px 0}
+    .hero{padding:72px 0 60px} .hero h1{font-size:33px;line-height:1.46} .hero .ring{display:none}
+    .hero .sub{font-size:16.5px}
+    .hero .actions{flex-direction:column;align-items:stretch;gap:14px}
+    .btn{width:100%;text-align:center;padding:16px 24px}
+    h2{font-size:25px} .final h2{font-size:26px} .ask{font-size:20px}
+    .reasons,.flow,.gains,.pmvv-grid{grid-template-columns:1fr}
+    .pm .txt{font-size:19px}
+    .badges{gap:10px 20px}
+  }
+</style>
+</head>
+<body>
+
+<div class="draftbar">これはLPのドラフトです。黄色の【…】が記入待ち。Claudeにこのファイルを渡して「【】部分を当社の情報で埋めて」と頼めます。</div>
+
+<nav><div class="wrap nav-in">
+  <div class="logo">and<span class="o">°</span> Academy</div>
+  <a class="nav-cta" href="#contact">無料相談を予約</a>
+</div></nav>
+
+<!-- 代替キャッチ案：「“使われないAI研修”を、もう卒業しよう。」／「AIを、会社の仕組みにする30日。」 -->
+<header class="hero">
+  <div class="wrap">
+    <span class="ring r1"></span><span class="ring r2"></span>
+    <div class="hero-in">
+      <p class="eyebrow">法人向け・非エンジニアのためのAI実践プログラム</p>
+      <h1>30日で、会社にAIを<br><span class="u">“定着”</span>させる。</h1>
+      <p class="sub">研修して終わり、ではありません。非エンジニアの社員が自社の実務でAIを使いこなし、<b style="color:var(--ink)">人を増やさずに生産性が上がる</b>——。全20レッスン・約5時間。AIコーチが、定着まで伴走します。</p>
+      <div class="actions">
+        <a class="btn" href="#contact">無料オンライン相談を予約する</a>
+        <a class="btn-ghost" href="#curriculum">カリキュラムを見る</a>
+      </div>
+      <div class="badges">
+        <span class="badge"><b>全20レッスン</b>・約5時間</span>
+        <span class="badge"><b>経営者</b>が見て分かる</span>
+        <span class="badge"><b>AIコーチ</b>が完走まで伴走</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">問いかけ</p>
+    <p class="ask">「生産性を上げよう」。<br><span class="q">——本当に、上がっていますか？</span></p>
+    <p class="problem-sub">ツールを導入した。研修もした。それでも現場の手間は減らず、数字も変わらない。多くの会社で“AI活用”が、かけ声のまま止まっています。</p>
+  </div>
+</section>
+
+<section class="stance">
+  <div class="wrap">
+    <p class="eyebrow">私たちの姿勢</p>
+    <h2>and° Academy は、<br><span class="hl">生産性向上に真っ向から</span>向き合います。</h2>
+    <p class="lead" style="max-width:840px;margin-top:18px">ツールを配って終わり、動画を見せて終わり、にはしません。御社の実際の業務に当てはめ、<b style="color:var(--ink)">“仕事が速くなる・成果物が残る”ところまで</b>設計します。全レッスンが「自社の実データ × 手を動かすハンズオン × 持ち帰れる成果物」。つまずいてもAIコーチが伴走します。</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">AIが定着した先に</p>
+    <h2>AIが根づいた会社は、こう変わる。</h2>
+    <div class="gains">
+      <div class="gain"><span class="ic">✓</span><span>人を増やさずに、仕事のスピードと量が上がる</span></div>
+      <div class="gain"><span class="ic">✓</span><span>社長がプレイヤー業務から抜け、経営に集中できる</span></div>
+      <div class="gain"><span class="ic">✓</span><span>ベテランの知見が“仕組み”になり、属人化が解ける</span></div>
+      <div class="gain"><span class="ic">✓</span><span>議事録・提案書・分析の“自分待ち”が消える</span></div>
+      <div class="gain"><span class="ic">✓</span><span>毎朝、数字を見て、その日のうちに手を打てる</span></div>
+      <div class="gain"><span class="ic">✓</span><span>新しいツールが出ても、自社で使いこなせる土台が残る</span></div>
+    </div>
+    <p class="gain-closer">“AIを学ぶ”の先にある、<span class="brand">会社が回り出す</span>状態へ。</p>
+  </div>
+</section>
+
+<section class="stance">
+  <div class="wrap center">
+    <p class="eyebrow">選ばれる理由</p>
+    <h2>“定着”まで、設計されている。</h2>
+    <div class="reasons" style="text-align:left">
+      <div class="card"><span class="n">01</span><h3>30日で“定着”まで設計</h3><p>動画を見せて終わり、にしない。週ごとのロードマップとAIコーチの伴走で、1か月後には自社にAIが根づく状態へ。社内ルール・プロンプト集・自動化など“資産”が残ります。</p></div>
+      <div class="card"><span class="n">02</span><h3>経営者の言葉で、経営に効く順に</h3><p>専門用語は使いません。議事録づくり・提案書・売上分析・毎朝の経営レポートなど、経営に直結する実務から。社長自身が見て分かる内容です。</p></div>
+      <div class="card"><span class="n">03</span><h3>安全に、会社で使える</h3><p>情報の扱い・確認の責任・社外送信前チェック・社内ルールづくりまで。「顧客情報があるから不安」を解消し、組織として安全に展開できます。</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="coach">
+  <div class="wrap center">
+    <p class="eyebrow" style="color:#6FBCE3">目玉</p>
+    <h2>受講者の隣に、いつでも聞けるAIコーチ。</h2>
+    <p class="lead" style="max-width:700px;margin:18px auto 0">レッスン中に「ここが分からない」「自社のこの例でやりたい」と話しかければ、そのレッスンを理解したコーチが、やさしく短く答えます。完走まで背中を押す“伴走役”です。</p>
+    <div class="chat">
+      <div class="b user">第7回の議事録づくり、うちの会議メモでやってみたい</div>
+      <div class="b coach">いいですね。まず会議メモから「決定事項」を3つ抜き出しましょう。次は、その3つに担当者を1人ずつ付けてみてください。</div>
+    </div>
+    <p class="kick">AI活用を教える講座が、AI自身で伴走する。</p>
+  </div>
+</section>
+
+<section id="curriculum">
+  <div class="wrap">
+    <p class="eyebrow">カリキュラム</p>
+    <h2>全20レッスン・約5時間。</h2>
+    <div class="phases">
+      <span class="chip">導入</span><span class="chip">基礎操作</span><span class="chip">資料作成</span>
+      <span class="chip">分析</span><span class="chip">営業効率化</span><span class="chip">マーケ</span>
+      <span class="chip">採用</span><span class="chip">現場改善</span><span class="chip">自動化</span>
+      <span class="chip">運用・安全</span><span class="chip">実装まとめ</span>
+    </div>
+    <p class="assets"><b>受講後に残る成果物の例：</b>AI活用候補リスト／自社の業務ルール(CLAUDE.md)／議事録・タスク表の自動化／提案書のたたき台／売上分析レポート／AI利用ガイドライン／30日導入ロードマップ ほか</p>
+  </div>
+</section>
+
+<section class="stance">
+  <div class="wrap">
+    <p class="eyebrow">対象</p>
+    <h2>こんな会社・経営者に。</h2>
+    <p class="lead" style="max-width:840px;margin-top:18px">10〜50名規模で、提案・資料作成・データ分析が多い会社（士業／制作・広告／人材／不動産／専門サービス など）。「AIを使った方がいいのは分かるが、何から手を付ければ…」という経営者に最適です。</p>
+  </div>
+</section>
+
+<!-- PMVV：andinc.site より。原文と照合・修正してください。 -->
+<section class="pmvv">
+  <div class="wrap">
+    <p class="eyebrow">私たちについて</p>
+    <h2>and° の、ぶれない軸。</h2>
+    <div class="pmvv-grid">
+      <div class="pm"><div class="lab">PURPOSE<span class="ja">存在意義</span></div><div class="txt">AIで、“伸びる仕組”を動かす</div></div>
+      <div class="pm"><div class="lab">MISSION<span class="ja">使命</span></div><div class="txt">お客様とともに価値を創造し、誰もがワクワクする未来を切り拓く</div></div>
+      <div class="pm"><div class="lab">VISION<span class="ja">目指す姿</span></div><div class="txt">腹を抱えて笑おう</div></div>
+      <div class="pm value"><div class="lab">VALUE<span class="ja">価値観</span></div><div class="txt">AIは提案。確定は人。AIと共存する未来へ。</div></div>
+    </div>
+    <p class="pmvv-note">※ PMVVは andinc.site から引用。ラベル・文言は原文と照合のうえご調整ください。</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">導入の流れ</p>
+    <h2>無料相談から、30日の伴走まで。</h2>
+    <div class="flow">
+      <div class="step"><div class="s">STEP 01</div><h3>無料相談</h3><p>30〜45分で課題をヒアリング</p></div>
+      <div class="step"><div class="s">STEP 02</div><h3>個社へのご提案</h3><p>御社に合わせた内容で提案</p></div>
+      <div class="step"><div class="s">STEP 03</div><h3>導入</h3><p>メンバー招待・講座割り当て</p></div>
+      <div class="step"><div class="s">STEP 04</div><h3>30日の伴走</h3><p>AIコーチと定着まで</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="stance">
+  <div class="wrap">
+    <p class="eyebrow">FAQ</p>
+    <h2>よくある質問。</h2>
+    <div style="margin-top:22px">
+      <div class="faq-item"><div class="faq-q"><span class="mk">Q.</span>エンジニアがいなくても大丈夫ですか？</div><div class="faq-a">はい。非エンジニアの経営者・社員向けに作っています。</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="mk">Q.</span>ChatGPTを少し使うのと何が違いますか？</div><div class="faq-a">「自社の業務に定着させる」設計と、AIコーチの伴走、安全に使うためのルールづくりまで含む点です。</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="mk">Q.</span>何名から導入できますか？</div><div class="faq-a">ご状況を伺い、最適な形をご提案します。まずは無料相談で。</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="mk">Q.</span>セキュリティ面が心配です。</div><div class="faq-a">情報の扱い・社外送信前チェック・社内ルールづくりまで、講座の中で扱います。</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="mk">Q.</span>価格はどのくらいですか？</div><div class="faq-a">御社のご状況に合わせて個別にご提案します。まずは無料オンライン相談で。</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">お客様の声</p>
+    <div class="fill-block" style="margin-top:18px">【記入待ち：導入企業の声・事例が集まったらここに掲載（企業名／役職／コメント）。実績が出るまでは、このセクションごと非表示でもOK】</div>
+  </div>
+</section>
+
+<section class="final" id="contact">
+  <div class="wrap">
+    <p class="eyebrow" style="color:#6FBCE3">無料相談</p>
+    <h2>まずは、30〜45分の無料相談から。</h2>
+    <p>御社の業務をうかがって、「どこからAIを定着させるか」を一緒に描きます。</p>
+    <a class="btn" href="#contact">無料オンライン相談を予約する</a>
+    <div class="fill-block" style="max-width:600px;margin:26px auto 0;text-align:left">【記入待ち：上のボタンのリンク先＝予約フォームのURL（Googleフォーム/カレンダー予約など）、または問い合わせ先を設定してください】</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="logo">and<span style="color:var(--brand-light)">°</span> Academy</div>
+    <p style="margin-top:10px">【記入待ち：運営会社名／所在地／問い合わせ先／プライバシーポリシー・特商法リンク などを記入】</p>
+  </div>
+</footer>
+
+</body>
+</html>
